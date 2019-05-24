@@ -1,0 +1,10 @@
+
+kau-rock/bin/
+kau-rock/obj/
+
+kau-game/bin/
+kau-game/obj/
+
+.vscode/
+
+*.code-workspace
