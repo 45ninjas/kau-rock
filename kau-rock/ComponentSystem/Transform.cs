@@ -16,9 +16,12 @@ namespace KauRock {
             this.Position = Position;
             this.Scale = Scale;
             this.Rotation = Rotation;
-            UpdateMatrix();
         }
 
+        public override void OnStart() {
+            UpdateMatrix();
+            base.OnStart();
+        }
 
         void PostUpdate() {
             if(matrixIsDirty)

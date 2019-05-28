@@ -1,6 +1,5 @@
 namespace KauRock {
     public class Component {
-        public bool Active = true;
         public readonly GameObject GameObject;
         public Component (GameObject gameObject) {
             // Add this component to the game object.
@@ -14,8 +13,6 @@ namespace KauRock {
         }
         public virtual void OnDestroy() {
             // The gameobject is beging destoyed.
-            GameObject.RemoveComponent(this);
-            Active = false;
         }
     }
 }
