@@ -1,7 +1,9 @@
 using System;
 
-namespace KauRock {
-    public static class Events {
+namespace KauRock
+{
+    public static class Events
+    {
         public delegate void Frame();
 
         public static event Frame UpdateFirst = null;

@@ -9,7 +9,7 @@ namespace kauGame
         static void Main(string[] args)
         {
             KauWindow window = new KauWindow(1240, 720, "Kau Game");
-            
+
             GameObject test = new GameObject("Test game object");
             var triangle = new HelloTriangle(test);
             window.ClearColor = KauTheme.Darkest;

@@ -2,21 +2,24 @@ using OpenTK.Graphics.OpenGL4;
 using OpenTK;
 using System.Collections.Generic;
 
-namespace KauRock {
-    public class ShaderProgram {
+namespace KauRock
+{
+    public class ShaderProgram
+    {
 
         private Dictionary<string, int> uniformLocations;
 
-       public readonly int Program;
+        public readonly int Program;
 
-       public Transform Transform = null;
-       private int? transformMatrixLocation = null;
+        public Transform Transform = null;
+        private int? transformMatrixLocation = null;
 
-        public ShaderProgram(int[] shaders) {
+        public ShaderProgram(int[] shaders)
+        {
             Program = GL.CreateProgram();
 
             // Attach each shader.
-            foreach(int shader in shaders)
+            foreach (int shader in shaders)
                 GL.AttachShader(Program, shader);
 
             // Link all the attached shaders to this program.
@@ -24,7 +27,8 @@ namespace KauRock {
 
             // Check for any linking errors.
             GL.GetProgram(Program, GetProgramParameterName.LinkStatus, out var status);
-            if(status != (int)All.True) {
+            if (status != (int)All.True)
+            {
                 string message = GL.GetProgramInfoLog(Program);
                 throw new System.Exception($"Error while linking program. Details: {message}");
             }
@@ -33,12 +37,14 @@ namespace KauRock {
             GetAllUniforms();
 
             // Detach each shader.
-            foreach(int shader in shaders) {
+            foreach (int shader in shaders)
+            {
                 GL.DetachShader(Program, shader);
             }
         }
-        
-        private void GetAllUniforms() {
+
+        private void GetAllUniforms()
+        {
             // Set the shader handle.
 
             uniformLocations = new Dictionary<string, int>();
@@ -47,7 +53,8 @@ namespace KauRock {
             GL.GetProgram(Program, GetProgramParameterName.ActiveUniforms, out int uniformCount);
 
             // Go over each uniform in this shader and save the location and name of each.            
-            for (int i = 0; i < uniformCount; i++) {
+            for (int i = 0; i < uniformCount; i++)
+            {
                 string name = GL.GetActiveUniform(Program, i, out _, out _);
                 int location = GL.GetUniformLocation(Program, name);
 
@@ -55,24 +62,26 @@ namespace KauRock {
             }
 
             // Set the transform matrix location if it exists.
-            if(uniformLocations.TryGetValue("Matrix", out int matrixLocation))
+            if (uniformLocations.TryGetValue("Matrix", out int matrixLocation))
                 transformMatrixLocation = matrixLocation;
             else
                 transformMatrixLocation = null;
         }
 
         // Use the shader program somewhere.
-        public void UseProgram(bool useTransformMatrix = true) {
+        public void UseProgram(bool useTransformMatrix = true)
+        {
 
             // Use the shader
             GL.UseProgram(Program);
 
             // Set the transform matrix to the matrix on the transform if all is good.
-            if(useTransformMatrix && transformMatrixLocation != null && Transform != null)
+            if (useTransformMatrix && transformMatrixLocation != null && Transform != null)
                 GL.ProgramUniformMatrix4(Program, (int)transformMatrixLocation, true, ref Transform.Matrix);
         }
         // Destroy the shader program.
-        public void Destroy() {
+        public void Destroy()
+        {
             GL.DeleteProgram(Program);
         }
 
@@ -102,7 +111,7 @@ namespace KauRock {
         public void SetVector3(int location, Vector3 data)
             => GL.ProgramUniform3(Program, location, data);
         public void SetVector3(string name, Vector3 data)
-            => SetVector3(uniformLocations[name], data); 
+            => SetVector3(uniformLocations[name], data);
 
         // Setting a vector4 for the shader.
         public void SetVector4(int location, Vector4 data)

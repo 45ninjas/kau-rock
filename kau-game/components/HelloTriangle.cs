@@ -3,16 +3,24 @@ using Loaders = KauRock.Loaders;
 
 using OpenTK.Graphics.OpenGL4;
 
-namespace kauGame.Components {
-    public class HelloTriangle : Component {
-        public HelloTriangle(GameObject go) : base(go) {
-            
+namespace kauGame.Components
+{
+    public class HelloTriangle : Component
+    {
+        public HelloTriangle(GameObject go) : base(go)
+        {
+
         }
 
         float[] vertices = {
-            -0.5f, -0.5f, 0.0f,
-             0.5f, -0.5f, 0.0f,
-             0.0f, 0.5f, 0.0f
+            // first triangle
+             0.5f,  0.5f, 0.0f,  // top right
+             0.5f, -0.5f, 0.0f,  // bottom right
+            -0.5f,  0.5f, 0.0f,  // top left 
+            // second triangle
+             0.5f, -0.5f, 0.0f,  // bottom right
+            -0.5f, -0.5f, 0.0f,  // bottom left
+            -0.5f,  0.5f, 0.0f   // top left
         };
 
         int vbo;
@@ -20,10 +28,12 @@ namespace kauGame.Components {
 
         ShaderProgram shader;
 
-        public override void OnStart() {
+        public override void OnStart()
+        {
 
             // Use the Shader loader to loait std the shaders.
-            using(var loader = new Loaders.Shader()) {
+            using (var loader = new Loaders.Shader())
+            {
                 // Create a new shader from the loader.
                 shader = loader.Load("resources/shaders/generic.glsl");
 
@@ -46,7 +56,8 @@ namespace kauGame.Components {
             Events.Render += OnRender;
         }
 
-        public void OnRender() {
+        public void OnRender()
+        {
 
             // Use our shader.
             shader.UseProgram();
@@ -57,14 +68,15 @@ namespace kauGame.Components {
             // Draw the vertex array object.
             GL.BindVertexArray(vao);
         }
-        public override void OnDestroy() {
+        public override void OnDestroy()
+        {
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
             GL.BindVertexArray(0);
             GL.UseProgram(0);
 
             GL.DeleteBuffer(vbo);
             GL.DeleteVertexArray(vao);
-            
+
             Events.Render -= OnRender;
         }
     }
