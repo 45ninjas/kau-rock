@@ -4,8 +4,8 @@ using Loaders = KauRock.Loaders;
 using OpenTK.Graphics.OpenGL4;
 
 namespace kauGame.Components {
-	public class HelloTriangle : Component {
-		public HelloTriangle (GameObject go) : base (go) {
+	public class HelloQuad : Component {
+		public HelloQuad (GameObject go) : base (go) {
 
 		}
 
