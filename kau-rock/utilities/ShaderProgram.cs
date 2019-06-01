@@ -98,6 +98,10 @@ namespace KauRock {
 		// Setting a vector4 for the shader.
 		public void SetVector4 (int location, Vector4 data) => GL.ProgramUniform4 (Program, location, data);
 		public void SetVector4 (string name, Vector4 data) => SetVector4 (uniformLocations[name], data);
+		
+		// support colours too.
+		public void SetVector4 (int location, Color data) => GL.ProgramUniform4 (Program, location, data);
+		public void SetVector4 (string name, Color data) => SetVector4 (uniformLocations[name], data);
 
 		// Setting an int for the shader.
 		public void SetInt (int location, int data) => GL.ProgramUniform1 (Program, location, data);

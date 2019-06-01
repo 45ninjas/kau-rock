@@ -2,6 +2,8 @@ using KauRock;
 using Loaders = KauRock.Loaders;
 
 using OpenTK.Graphics.OpenGL4;
+using OpenTK;
+using Mathf = System.MathF;
 
 namespace kauGame.Components {
 	public class HelloQuad : Component {
@@ -25,6 +27,8 @@ namespace kauGame.Components {
 
 		ShaderProgram shader;
 
+		int? tintColor = null;
+
 		public override void OnStart () {
 
 			// Use the Shader loader to loait std the shaders.
@@ -34,6 +38,12 @@ namespace kauGame.Components {
 
 				// Set the shader's Transform.
 				shader.Transform = GameObject.Transform;
+
+				// set the tintColor for this shader.
+				if(shader.TryGetUniformLocation("tintColor", out int tint)) {
+					shader.SetVector4(tint, KauTheme.HighLight);
+					tintColor = tint;
+				}
 			}
 
 			// Create the buffers for our vertex array data and element.
@@ -66,6 +76,14 @@ namespace kauGame.Components {
 
 			// Use our shader.
 			shader.UseProgram ();
+
+			if(tintColor != null) {
+				var start = new Vector4(KauTheme.Lightest.R, KauTheme.Lightest.G, KauTheme.Lightest.B, KauTheme.Lightest.A);
+				var end = new Vector4(KauTheme.HighLight.R, KauTheme.HighLight.G, KauTheme.HighLight.B, KauTheme.HighLight.A);
+				var color = Vector4.Lerp(start,end, 0.5f + Mathf.Sin(Time.GameTime) / 2) / byte.MaxValue;
+
+				shader.SetVector4((int)tintColor, color);
+			}
 
 			// Bind the vertex array to use with the triangles.
 			GL.BindVertexArray(vao);
