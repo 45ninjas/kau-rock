@@ -12,10 +12,11 @@ namespace kauGame.Components {
 		}
 
 		float[] vertices = {
-			-0.5f,	-0.5f,	0.0f,      // Bottom left.
-			-0.5f,   0.5f,	0.0f,      // Top left.
-			 0.5f,   0.5f,	0.0f,      // Top right.
-			 0.5f,	-0.5f,	0.0f       // Bottom right.
+			// X			Y				Z		U			V
+			-0.5f,	-0.5f,	0.0f,	0.0f,	0.0f,	// Bottom left.
+			-0.5f,   0.5f,	0.0f, 0.0f, 1.0f,	// Top left.
+			 0.5f,   0.5f,	0.0f, 1.0f, 1.0f,	// Top right.
+			 0.5f,	-0.5f,	0.0f, 1.0f, 0.0f	// Bottom right.
 		};
 
 		uint[] triangles =  {
@@ -26,6 +27,7 @@ namespace kauGame.Components {
 		int ebo, vbo, vao;
 
 		ShaderProgram shader;
+		Texture2D texture;
 
 		int? tintColor = null;
 
@@ -46,6 +48,12 @@ namespace kauGame.Components {
 				}
 			}
 
+			using (var loader = new Loaders.Texture()) {
+				loader.GenerateMipmap = true;
+				loader.Filter = TextureMagFilter.Linear;
+				texture = loader.Load ("resources/textures/yotsuba-cake.jpg");
+			}
+
 			// Create the buffers for our vertex array data and element.
 			vao = GL.GenVertexArray();
 			vbo = GL.GenBuffer();
@@ -63,11 +71,21 @@ namespace kauGame.Components {
 			GL.BufferData(BufferTarget.ElementArrayBuffer, sizeof(uint) * triangles.Length, triangles, BufferUsageHint.StaticDraw);
 
 			// Tell GL the structure of our vertex data and enable what we defined.
-			GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
-			GL.EnableVertexAttribArray(0);
+			int stride = (3 + 2) * sizeof(float);
+			
+			int vertPos = shader.GetAttribLocation("aPosition");
+			GL.VertexAttribPointer(vertPos, 3, VertexAttribPointerType.Float, false, stride, 0);
+			GL.EnableVertexAttribArray(vertPos);
+
+			// Texture coordinates.
+			int texPos = shader.GetAttribLocation("aTexCoord");
+			GL.VertexAttribPointer(texPos, 2, VertexAttribPointerType.Float, false, stride, 3 * sizeof(float));
+			GL.EnableVertexAttribArray(texPos);
 
 			// We are done here, let's clean up and un-bind everything we bound.
 			GL.BindVertexArray(0);
+
+			shader.SetTexture("PrimaryTexture", texture);
 
 			Events.Render += OnRender;
 		}
@@ -75,6 +93,7 @@ namespace kauGame.Components {
 		public void OnRender () {
 
 			// Use our shader.
+			texture.Use();
 			shader.UseProgram ();
 
 			if(tintColor != null) {

@@ -52,6 +52,7 @@ namespace KauRock {
 				int location = GL.GetUniformLocation (Program, name);
 
 				uniformLocations.Add (name, location);
+				Log.Debug(this, $"Shader Uniform {name} at {location}");
 			}
 
 			// Set the transform matrix location if it exists.
@@ -78,6 +79,10 @@ namespace KauRock {
 
 		// Get the location of a uniform from the dictionary.
 		public bool TryGetUniformLocation (string name, out int location) => uniformLocations.TryGetValue (name, out location);
+		public int GetUniformLocation(string name) => uniformLocations[name];
+
+		// Get an attribute location.
+		public int GetAttribLocation(string attribName) => GL.GetAttribLocation(Program, attribName);
 
 		// Setting a matrix variable for the shader.
 		public void SetMatrix (int location, Matrix4 matrix) => GL.ProgramUniformMatrix4 (Program, location, true, ref matrix);
@@ -106,5 +111,9 @@ namespace KauRock {
 		// Setting an int for the shader.
 		public void SetInt (int location, int data) => GL.ProgramUniform1 (Program, location, data);
 		public void SetInt (string name, int data) => SetInt (uniformLocations[name], data);
+
+		// Set a texture2D.
+		public void SetTexture(int location, Texture2D texture) => SetInt(location,texture.TextureObject);
+		public void SetTexture(string name, Texture2D texture) => SetInt(name,texture.TextureObject);
 	}
 }

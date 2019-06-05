@@ -1,9 +1,11 @@
 #version 330
 
 uniform vec4 tintColor;
+uniform sampler2D PrimaryTexture;
 
-out vec4 outputColor;
+in vec2 TexCoord;
+out vec4 FragColor;
 
 void main() {
-    outputColor = tintColor;
+    FragColor = texture(PrimaryTexture, TexCoord) * tintColor;
 }

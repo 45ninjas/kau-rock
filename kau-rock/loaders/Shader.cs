@@ -7,7 +7,7 @@ namespace KauRock.Loaders {
 	// Shader naming convention for this project is quite simple, [shader-name].[type].glsl.
 	// Type can be found in the NameToType method.
 
-	public class Shader : System.IDisposable {
+	public class Shader : ILoader<ShaderProgram> {
 		public Dictionary<string, int> shaderObjects = new Dictionary<string, int> ();
 
 		// Every time this Load function is called we create a new shader. This Loader class
