@@ -28,7 +28,7 @@ namespace kauGame.Components {
 
 		ShaderProgram shader;
 		Texture2D texture;
-
+		
 		int? tintColor = null;
 
 		public override void OnStart () {
@@ -51,7 +51,7 @@ namespace kauGame.Components {
 			using (var loader = new Loaders.Texture()) {
 				loader.GenerateMipmap = true;
 				loader.Filter = TextureMagFilter.Linear;
-				texture = loader.Load ("resources/textures/yotsuba-cake.jpg");
+				texture = loader.Load("resources/textures/yotsuba-necb.jpg");
 			}
 
 			// Create the buffers for our vertex array data and element.
@@ -85,15 +85,12 @@ namespace kauGame.Components {
 			// We are done here, let's clean up and un-bind everything we bound.
 			GL.BindVertexArray(0);
 
-			shader.SetTexture("PrimaryTexture", texture);
-
 			Events.Render += OnRender;
 		}
 
 		public void OnRender () {
 
 			// Use our shader.
-			texture.Use();
 			shader.UseProgram ();
 
 			if(tintColor != null) {
