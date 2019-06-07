@@ -8,7 +8,7 @@ namespace kauGame {
 			KauWindow window = new KauWindow (1240, 720, "Kau Game");
 
 			GameObject test = new GameObject ("Test game object");
-			var quad = new HelloQuad (test);
+			var quad = new HelloTransform (test);
 			
 			window.ClearColor = KauTheme.Darkest;
 			window.Run (60);

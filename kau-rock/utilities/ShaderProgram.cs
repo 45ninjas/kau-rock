@@ -56,7 +56,7 @@ namespace KauRock {
 			}
 
 			// Set the transform matrix location if it exists.
-			if (uniformLocations.TryGetValue ("Matrix", out int matrixLocation))
+			if (uniformLocations.TryGetValue ("transform", out int matrixLocation))
 				transformMatrixLocation = matrixLocation;
 			else
 				transformMatrixLocation = null;
@@ -69,8 +69,9 @@ namespace KauRock {
 			GL.UseProgram (Program);
 
 			// Set the transform matrix to the matrix on the transform if all is good.
-			if (useTransformMatrix && transformMatrixLocation != null && Transform != null)
+			if (useTransformMatrix && transformMatrixLocation != null && Transform != null) {
 				GL.ProgramUniformMatrix4 (Program, (int) transformMatrixLocation, true, ref Transform.Matrix);
+			}
 		}
 		// Destroy the shader program.
 		public void Destroy () {

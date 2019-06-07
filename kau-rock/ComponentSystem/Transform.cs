@@ -21,23 +21,35 @@ namespace KauRock {
 		public override void OnStart () {
 			UpdateMatrix ();
 			base.OnStart ();
+
+			Events.UpdateLast += MatrixDirtyUpdate;
+			Events.RenderFirst += MatrixDirtyUpdate;
 		}
 
-		void PostUpdate () {
-			if (matrixIsDirty)
-				UpdateMatrix ();
+		public override void OnDestroy() {
+			Events.UpdateLast -= MatrixDirtyUpdate;
+			Events.RenderFirst -= MatrixDirtyUpdate;
 		}
 
-		void PreRender () {
+		public void Rotate(float pitch, float yaw, float roll) {
+			Rotation *= Quaternion.FromEulerAngles(pitch,yaw,roll);
+			matrixIsDirty = true;
+		}
+
+		// Update the matrix if it's dirty.
+		void MatrixDirtyUpdate () {
 			if (matrixIsDirty)
 				UpdateMatrix ();
 		}
 
 		void UpdateMatrix () {
+			// Clear the matrix.
 			Matrix = Matrix4.Identity;
 
+			// Rotate, scale then translate the matrix.
 			Matrix *= Matrix4.CreateFromQuaternion (Rotation);
 			Matrix *= Matrix4.CreateScale (Scale);
+			Matrix *= Matrix4.CreateTranslation(Position);
 		}
 	}
 }
