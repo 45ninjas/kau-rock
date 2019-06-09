@@ -3,6 +3,7 @@ using System;
 namespace KauRock {
 	public static class Events {
 		public delegate void Frame ();
+		public delegate void WindowChange (KauWindow window);
 
 		public static event Frame UpdateFirst = null;
 		public static event Frame Update = null;
@@ -19,5 +20,8 @@ namespace KauRock {
 		internal static void InvokeRenderFirst () => RenderFirst?.Invoke ();
 		internal static void InvokeRender () => Render?.Invoke ();
 		internal static void InvokeRenderLast () => RenderLast?.Invoke ();
+
+		public static event WindowChange WindowResize = null;
+		internal static void InvokeWindowRezie(KauWindow window) => WindowResize?.Invoke (window);
 	}
 }

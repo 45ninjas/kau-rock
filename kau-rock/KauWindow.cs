@@ -13,6 +13,10 @@ namespace KauRock {
 		}
 
 		protected override void OnKeyDown (KeyboardKeyEventArgs e) {
+			// Quit the game.
+			if (e.Key == Key.Escape) {
+				CursorVisible = true;
+			}
 
 			// Toggle Wireframe.
 			if (e.Key == Key.F10) {
@@ -25,6 +29,17 @@ namespace KauRock {
 			}
 		}
 
+		protected override void OnMouseDown(MouseButtonEventArgs e) {
+			CursorVisible = false;
+		}
+
+		protected override void OnMouseMove(MouseMoveEventArgs e) {
+			if(Focused && !CursorVisible) {
+				// Move the mouse to the middle of the window.
+				Mouse.SetPosition(X + Width / 2f, Y + Height / 2f);
+			}
+		}
+
 		protected override void OnClosed (EventArgs e) {
 			SceneManager.DestroyAll ();
 
@@ -34,13 +49,17 @@ namespace KauRock {
 		protected override void OnLoad (EventArgs e) {
 			base.OnLoad (e);
 
+			CursorVisible = false;
+
 			GL.ClearColor (ClearColor);
+			GL.Enable(EnableCap.DepthTest);
 
 			SceneManager.Start ();
 		}
 
 		protected override void OnResize (EventArgs e) {
 			GL.Viewport (0, 0, Width, Height);
+			Events.InvokeWindowRezie(this);
 			base.OnResize (e);
 		}
 
@@ -57,8 +76,7 @@ namespace KauRock {
 
 		protected override void OnRenderFrame (FrameEventArgs e) {
 			// Clear the screen.
-			GL.Clear (ClearBufferMask.ColorBufferBit);
-
+			GL.Clear (ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 			// Invoke the Render events.
 			Events.InvokeRenderFirst ();
 			Events.InvokeRender ();

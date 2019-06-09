@@ -98,6 +98,10 @@ namespace kauGame.Components {
 			// Use our shader.
 			shader.UseProgram();
 
+			// TODO: This is shit and inefficient. Get rid of it.
+			shader.SetMatrix("view", Camera.ActiveCamera.GetViewMatrix());
+			shader.SetMatrix("projection", Camera.ActiveCamera.GetProjectionMatrix());
+
 			if(tintColor != null) {
 				var start = new Vector4(KauTheme.Lightest.R, KauTheme.Lightest.G, KauTheme.Lightest.B, KauTheme.Lightest.A);
 				var end = new Vector4(KauTheme.HighLight.R, KauTheme.HighLight.G, KauTheme.HighLight.B, KauTheme.HighLight.A);

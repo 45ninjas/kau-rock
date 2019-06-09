@@ -2,9 +2,31 @@ using OpenTK;
 
 namespace KauRock {
 	public class Transform : Component {
-		public Vector3 Position = Vector3.Zero;
-		public Quaternion Rotation = Quaternion.Identity;
-		public Vector3 Scale = Vector3.One;
+		private Vector3 position = Vector3.Zero;
+		public Vector3 Position {
+			get => position;
+			set {
+				position = value;
+				matrixIsDirty = true;
+			}
+		}
+
+		private Quaternion rotation = Quaternion.Identity;
+		public Quaternion Rotation {
+			get => rotation;
+			set {
+				rotation = value;
+				matrixIsDirty = true;
+			}
+		}
+		private Vector3 scale = Vector3.One;
+		public Vector3 Scale {
+			get => scale;
+			set {
+				scale = value;
+				matrixIsDirty = true;
+			}
+		}
 
 		public Matrix4 Matrix = Matrix4.Identity;
 
@@ -36,13 +58,29 @@ namespace KauRock {
 			matrixIsDirty = true;
 		}
 
+		// Directions.
+		// public Vector3 Forward => Vector3.Normalize(Rotation * Vector3.UnitZ);
+		public Vector3 Forward {get {
+			return Vector3.TransformNormal(Vector3.UnitZ, Matrix);
+		}}
+		//public Vector3 Up => Vector3.Normalize(Rotation * Vector3.UnitY);
+		public Vector3 Up {get {
+			return Vector3.TransformNormal(Vector3.UnitY, Matrix);
+		}}
+		//public Vector3 Right => Vector3.Normalize(Rotation * Vector3.UnitX);
+		public Vector3 Right {get {
+			return Vector3.TransformNormal(Vector3.UnitX, Matrix);
+		}}
+
 		// Update the matrix if it's dirty.
 		void MatrixDirtyUpdate () {
 			if (matrixIsDirty)
 				UpdateMatrix ();
 		}
 
-		void UpdateMatrix () {
+		// TODO: Add https://answers.unity.com/questions/467614/what-is-the-source-code-of-quaternionlookrotation.html
+
+		public void UpdateMatrix () {
 			// Clear the matrix.
 			Matrix = Matrix4.Identity;
 
@@ -50,6 +88,8 @@ namespace KauRock {
 			Matrix *= Matrix4.CreateFromQuaternion (Rotation);
 			Matrix *= Matrix4.CreateScale (Scale);
 			Matrix *= Matrix4.CreateTranslation(Position);
+
+			matrixIsDirty = false;
 		}
 	}
 }
