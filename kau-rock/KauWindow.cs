@@ -66,6 +66,10 @@ namespace KauRock {
 			GL.ClearColor (ClearColor);
 			GL.Enable(EnableCap.DepthTest);
 
+			GL.Enable(EnableCap.CullFace);
+			GL.FrontFace(FrontFaceDirection.Cw);
+			GL.CullFace(CullFaceMode.Back);
+
 			SceneManager.Start ();
 		}
 
