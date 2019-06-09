@@ -55,7 +55,7 @@ namespace KauRock {
 
 		public Matrix4 GetViewMatrix() {
 			Vector3 forward = transform.Forward;
-			return Matrix4.LookAt(transform.Position, transform.Position + forward, Vector3.UnitY);
+			return Matrix4.LookAt(transform.Position, transform.Position + forward, transform.Up);
 		}
 		public Matrix4 GetProjectionMatrix() => projectionMatrix;
 

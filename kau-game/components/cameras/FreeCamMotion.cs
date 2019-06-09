@@ -19,7 +19,7 @@ namespace kauGame.Components.Cameras {
 		private bool firstFrame = true;
 
 		private float pitch = 0;
-		private float yaw = MathHelper.DegreesToRadians(180);
+		private float yaw = 0;
 
 		private float Pitch {
 			get => MathHelper.RadiansToDegrees(pitch);
@@ -47,7 +47,7 @@ namespace kauGame.Components.Cameras {
 
 			moveVector = Vector3.Zero;
 			if(input.IsKeyDown(Key.W))
-				moveVector += transform.Forward;
+				moveVector += transform.Forward;				
 			if(input.IsKeyDown(Key.S))
 				moveVector -= transform.Forward;
 			if(input.IsKeyDown(Key.A))
