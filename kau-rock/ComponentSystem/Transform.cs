@@ -61,15 +61,21 @@ namespace KauRock {
 		// Directions.
 		// public Vector3 Forward => Vector3.Normalize(Rotation * Vector3.UnitZ);
 		public Vector3 Forward {get {
-			return Vector3.TransformNormal(Vector3.UnitZ, Matrix);
+			Vector4 rt = -Matrix.Column2;
+			return new Vector3(rt.X, rt.Y, rt.Z);
+			//return Vector3.TransformVector(Vector3.UnitZ, Matrix);
 		}}
 		//public Vector3 Up => Vector3.Normalize(Rotation * Vector3.UnitY);
 		public Vector3 Up {get {
-			return Vector3.TransformNormal(Vector3.UnitY, Matrix);
+			//return Vector3.TransformVector(Vector3.UnitY, Matrix);
+			Vector4 rt = Matrix.Column1;
+			return new Vector3(rt.X, rt.Y, rt.Z);
 		}}
 		//public Vector3 Right => Vector3.Normalize(Rotation * Vector3.UnitX);
 		public Vector3 Right {get {
-			return Vector3.TransformNormal(Vector3.UnitX, Matrix);
+			// return Vector3.TransformVector(Vector3.UnitX, Matrix);
+			Vector4 rt = Matrix.Column0;
+			return new Vector3(rt.X, rt.Y, rt.Z);
 		}}
 
 		// Update the matrix if it's dirty.
@@ -90,6 +96,16 @@ namespace KauRock {
 			Matrix *= Matrix4.CreateTranslation(Position);
 
 			matrixIsDirty = false;
+		}
+
+		public void SetMatrix(Matrix4 matrix) {
+			matrixIsDirty = false;
+
+			scale = matrix.ExtractScale();
+			rotation = matrix.ExtractRotation();
+			position = matrix.ExtractTranslation();
+
+			Matrix = matrix;
 		}
 	}
 }

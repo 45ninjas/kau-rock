@@ -27,6 +27,18 @@ namespace KauRock {
 			if (e.Key == Key.F1) {
 				CommandManager.Execute (Console.ReadLine ());
 			}
+
+			// Shift time scale.
+			if (e.Modifiers == KeyModifiers.Alt) {
+				if(e.Key == Key.Minus) {
+					Time.Scale -= 0.1f;
+					Log.Debug(this, $"Time scale: {Time.Scale}");
+				}
+				if (e.Key == Key.Plus) {
+					Time.Scale += 0.1f;
+					Log.Debug(this, $"Time scale: {Time.Scale}");
+				}
+			}
 		}
 
 		protected override void OnMouseDown(MouseButtonEventArgs e) {

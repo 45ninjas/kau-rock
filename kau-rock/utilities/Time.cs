@@ -10,7 +10,16 @@ public static class Time {
 	public static float UnscaledDelta { private set; get; }
 
 	// The scale to change the time by.
-	public static float Scale = 1;
+	private static float scale = 1;
+	public static float Scale {
+		get => scale;
+		set {
+			if(value < 0)
+				scale = 0;
+			else
+				scale = value;
+		}
+	}
 
 	internal static void SetTime (float delta) {
 

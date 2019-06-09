@@ -21,6 +21,15 @@ namespace kauGame.Components.Cameras {
 		private float pitch;
 		private float yaw;
 
+		private float Pitch {
+			get => MathHelper.RadiansToDegrees(pitch);
+			set => pitch = MathHelper.DegreesToRadians(MathHelper.Clamp(value, MinPitch, MaxPitch));
+		}
+		private float Yaw {
+			get => MathHelper.RadiansToDegrees(yaw);
+			set => yaw = MathHelper.DegreesToRadians(value);
+		}
+
 		public FreeCamMotion(GameObject gameObject) : base(gameObject) {
 		}
 
@@ -32,39 +41,36 @@ namespace kauGame.Components.Cameras {
 			Events.Update -= Update;
 		}
 
-		void Update() {
-			// Set the time delta to unscaled or scaled depending on what the UseUnscaledTime is at.
-			float timeDelta = ((UseUnscaledTime)? Time.UnscaledDelta : Time.Delta);
-
-
+		void UpdateInputs(float timeDelta, out Vector3 moveVector) {
 			// Get the keyboard state and convert WASD into a vector.
 			var input = Keyboard.GetState();
-			Vector3 inputVector = Vector3.Zero;
+
+			moveVector = Vector3.Zero;
 			if(input.IsKeyDown(Key.W))
-				inputVector.Z += 1;
+				moveVector += transform.Forward;
 			if(input.IsKeyDown(Key.S))
-				inputVector.Z -= 1;
+				moveVector -= transform.Forward;
 			if(input.IsKeyDown(Key.A))
-				inputVector.X += 1;
+				moveVector -= transform.Right;
 			if(input.IsKeyDown(Key.D))
-				inputVector.X -= 1;
+				moveVector += transform.Right;
 
 			if(input.IsKeyDown(Key.Down)) {
-				pitch += 30 * timeDelta;
+				pitch += Sensitivity * timeDelta * 10;
 			}
 			if(input.IsKeyDown(Key.Up)) {
-				pitch -= 30 * timeDelta;
+				pitch -= Sensitivity * timeDelta * 10;
 			}
 			if(input.IsKeyDown(Key.Left)) {
-				yaw += 30 * timeDelta;
+				yaw -= Sensitivity * timeDelta * 10;
 			}
 			if(input.IsKeyDown(Key.Right)) {
-				yaw -= 30 * timeDelta;
+				yaw += Sensitivity * timeDelta * 10;
 			}
 
 			// Normalize the input if it's bigger than 1 squared. (z and x motion).
-			if(inputVector.LengthSquared > 1.4f)
-				inputVector.NormalizeFast();
+			if(moveVector.LengthSquared > 1.4f)
+				moveVector.NormalizeFast();
 
 			// Do mouse inputs.
 			var mouseInput = Mouse.GetState();
@@ -84,20 +90,25 @@ namespace kauGame.Components.Cameras {
 			mousePos.Y = mouseInput.Y;
 
 			// Set the yaw and pitch while clamping pitch.
-			yaw -= deltaX * Sensitivity;
-			pitch = MathHelper.Clamp(pitch + deltaY * Sensitivity, MinPitch, MaxPitch);
-			
-			Quaternion yawQat = Quaternion.FromAxisAngle(Vector3.UnitY, MathHelper.DegreesToRadians(yaw));
-			Quaternion pitchQat = Quaternion.FromAxisAngle(transform.Right, MathHelper.DegreesToRadians(pitch));
-			transform.Rotation = Quaternion.Multiply(pitchQat, yawQat).Normalized();
-			// transform.Rotation = pitchQat;
-			// transform.Rotation = yawQat;
+			Yaw += deltaX * Sensitivity;
+			Pitch += deltaY * Sensitivity;
+		}
 
-			transform.UpdateMatrix();
+		void Update() {
+			// Set the time delta to unscaled or scaled depending on what the UseUnscaledTime is at.
+			float timeDelta = ((UseUnscaledTime)? Time.UnscaledDelta : Time.Delta);
 
-			// Rotate the input vector by the camera's rotation then translate the camera.
-			Vector3 moveVector = Vector3.TransformNormal(inputVector, transform.Matrix);
-			//transform.Position += moveVector * MoveSpeed * timeDelta;
+			// Get the inputs from the keyboard and mouse.
+			UpdateInputs(timeDelta, out Vector3 moveVector);
+
+			// Rotate the camera based on the pitch and yaw.
+			var rotation = Quaternion.FromEulerAngles(pitch, yaw, 0);
+
+			// Set the rotation of the transform.
+			transform.Rotation = rotation;
+
+			// Move the camera.
+			transform.Position += moveVector * MoveSpeed * timeDelta;
 		}
 	}
 }
