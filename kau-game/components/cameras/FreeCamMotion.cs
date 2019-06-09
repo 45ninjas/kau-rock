@@ -18,8 +18,8 @@ namespace kauGame.Components.Cameras {
 		private Vector2 mousePos;
 		private bool firstFrame = true;
 
-		private float pitch;
-		private float yaw;
+		private float pitch = 0;
+		private float yaw = MathHelper.DegreesToRadians(180);
 
 		private float Pitch {
 			get => MathHelper.RadiansToDegrees(pitch);
