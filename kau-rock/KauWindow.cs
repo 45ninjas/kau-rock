@@ -61,6 +61,12 @@ namespace KauRock {
 		protected override void OnLoad (EventArgs e) {
 			base.OnLoad (e);
 
+			// Enable Debugging open GL.
+			GL.Enable(EnableCap.DebugOutput);
+			GL.Enable(EnableCap.DebugOutputSynchronous);
+			GL.DebugMessageCallback(GL_ErrorCallback, IntPtr.Zero);
+			GL.DebugMessageControl(DebugSourceControl.DontCare, DebugTypeControl.DontCare, DebugSeverityControl.DontCare, 0, new int[0], true);
+
 			CursorVisible = false;
 
 			GL.ClearColor (ClearColor);
@@ -69,8 +75,34 @@ namespace KauRock {
 			GL.Enable(EnableCap.CullFace);
 			GL.FrontFace(FrontFaceDirection.Cw);
 			GL.CullFace(CullFaceMode.Back);
-
+ 
 			SceneManager.Start ();
+		}
+
+		private void GL_ErrorCallback(DebugSource source, DebugType type, int id, DebugSeverity severity, int lenght, IntPtr message, IntPtr userParam) {
+
+			Log.Level level;
+
+			switch (severity)
+			{
+					case DebugSeverity.DebugSeverityHigh:
+						level = Log.Level.Error;
+						break;
+					case DebugSeverity.DebugSeverityMedium:
+						level = Log.Level.Error;
+						break;
+					case DebugSeverity.DebugSeverityLow:
+						level = Log.Level.Warning;
+						break;
+					default:
+						level = Log.Level.Info;
+						break;
+			}
+			string strMessage = null;
+			if(message != IntPtr.Zero) {
+				strMessage = System.Runtime.InteropServices.Marshal.PtrToStringUTF8(message);
+			}
+			Log.Print(level, strMessage, $"GL {source}");
 		}
 
 		protected override void OnResize (EventArgs e) {
