@@ -70,18 +70,34 @@ namespace KauRock.Loaders {
 			return new ShaderProgram (newShaderObjects.ToArray ());
 		}
 
-		public int CreateShaderObject (string filename, ShaderType type) {
+		public ShaderProgram Load(params string[] keys) {
+			Stack<int> shaders = new Stack<int>();
+			foreach (var key in keys) {
+					if(shaderObjects.TryGetValue(key, out var shader)) {
+						shaders.Push(shader);
+					}
+			}
+			return new ShaderProgram(shaders.ToArray());
+		}
+
+		public void AddRaw(string key, string shaderSource, ShaderType type) {
+			CreateShaderObject(key, shaderSource, type);
+		}
+
+		private int CreateShaderObject (string filename, ShaderType type) {
 
 			// Read the file into a string with UTF8 encoding.
 			string source = File.ReadAllText (filename, System.Text.UTF8Encoding.UTF8);
+			Log.Info (this, $"Creating a {type} shader from {filename}.");
+			return CreateShaderObject(filename, source, type);
+		}
 
+		private int CreateShaderObject (string key, string source, ShaderType type) {
 			// Create the new shader object, tell openGL where the string is and compile the shader.
 			int shaderObject = GL.CreateShader (type);
 
 			GL.ShaderSource (shaderObject, source);
 			GL.CompileShader (shaderObject);
-
-			Log.Info (this, $"Creating a {type} shader from {filename}.");
 
 			// Get the compile status of the shader object. If there is one, get the InfoLog for the
 			// shader object and throw an exception.
@@ -89,12 +105,12 @@ namespace KauRock.Loaders {
 			GL.GetShader (shaderObject, ShaderParameter.CompileStatus, out var compileCode);
 			if (compileCode != (int) All.True) {
 				string info = GL.GetShaderInfoLog (shaderObject);
-				throw new System.Exception ($"Shader compile error:({filename})", new System.Exception (info));
+				throw new System.Exception ($"Shader compile error:({key})", new System.Exception (info));
 			}
 
 			// Wooh, the shader has successfully compiled, add it the the list of shaderObject in-case
 			// we need to use it again.
-			shaderObjects.Add (filename, shaderObject);
+			shaderObjects.Add (key, shaderObject);
 
 			return shaderObject;
 		}
