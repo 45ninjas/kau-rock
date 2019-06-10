@@ -5,7 +5,11 @@ using MathF = System.MathF;
 
 namespace kauGame.Components.Cameras {
 	public class FreeCamMotion : Component {
-		public float MoveSpeed = 5;
+
+		public float SmoothDecay = 15f;
+		public Vector3 velocity;
+
+		public float MoveSpeed = 4;
 		public float MinPitch = -89f;
 		public float MaxPitch = 89f;
 
@@ -97,7 +101,6 @@ namespace kauGame.Components.Cameras {
 		void Update() {
 			// Set the time delta to unscaled or scaled depending on what the UseUnscaledTime is at.
 			float timeDelta = ((UseUnscaledTime)? Time.UnscaledDelta : Time.Delta);
-
 			// Get the inputs from the keyboard and mouse.
 			UpdateInputs(timeDelta, out Vector3 moveVector);
 
@@ -107,8 +110,16 @@ namespace kauGame.Components.Cameras {
 			// Set the rotation of the transform.
 			transform.Rotation = rotation;
 
+			Vector3 targetVelocty = moveVector * MoveSpeed;
+
+			velocity += targetVelocty * timeDelta;
+			velocity -= velocity * SmoothDecay * timeDelta;
+
 			// Move the camera.
-			transform.Position += moveVector * MoveSpeed * timeDelta;
+			//transform.Position += moveVector * MoveSpeed * timeDelta;
+
+			transform.Position += velocity;
+
 		}
 	}
 }
