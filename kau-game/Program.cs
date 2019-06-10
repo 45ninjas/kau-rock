@@ -9,8 +9,8 @@ namespace kauGame {
 		static void Main (string[] args) {
 			KauWindow window = new KauWindow (1240, 720, "Kau Game");
 
-			GameObject companionCube = new GameObject("Companion Cube Fried");
-			var cube = new CompanionCube(companionCube);
+			GameObject companionCube = new GameObject("Companion Cube Fiend");
+			var cube = new Cube(companionCube);
 			companionCube.Transform.Position = new Vector3(0, 0, 0);
 
 			GameObject camera = new GameObject("Game Camera");
