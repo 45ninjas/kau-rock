@@ -5,6 +5,8 @@ namespace KauRock {
 	public class Camera : Component {
 		public static Camera ActiveCamera;
 
+		public GenericSky Sky;
+
 		private Transform transform;
 
 		// If any of the following have been changed the view matrix needs to be updated.
@@ -97,8 +99,8 @@ namespace KauRock {
 		}
 
 		void Render() {
-			if(ActiveCamera == this) {
-				
+			if(ActiveCamera == this && Sky != null) {
+				Sky.Render();
 			}
 		}
 	}
