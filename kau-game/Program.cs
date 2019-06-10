@@ -11,12 +11,13 @@ namespace kauGame {
 
 			GameObject companionCube = new GameObject("Companion Cube Fiend");
 			var cube = new Cube(companionCube);
-			companionCube.Transform.Position = new Vector3(0, 0, 0);
+			companionCube.Transform.Position = new Vector3(0, -2, 0);
 
 			GameObject camera = new GameObject("Game Camera");
 			var cam = new Camera(camera, (float)window.Width / (float)window.Height);
 			var camMotion = new FreeCamMotion(camera);
 			camera.Transform.Position = new Vector3(0, 0, 5);
+			cam.Sky = new SkyDome();
 			
 			window.ClearColor = KauTheme.Darkest;
 			window.Run ();

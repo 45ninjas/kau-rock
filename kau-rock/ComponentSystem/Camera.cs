@@ -5,7 +5,7 @@ namespace KauRock {
 	public class Camera : Component {
 		public static Camera ActiveCamera;
 
-		public GenericSky Sky;
+		public KauRock.Utilities.ISky Sky;
 
 		private Transform transform;
 
@@ -100,7 +100,7 @@ namespace KauRock {
 
 		void Render() {
 			if(ActiveCamera == this && Sky != null) {
-				Sky.Render();
+				Sky.Render(GetViewMatrix(), GetProjectionMatrix());
 			}
 		}
 	}
