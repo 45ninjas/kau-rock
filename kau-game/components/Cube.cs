@@ -1,3 +1,5 @@
+using System;
+
 using KauRock;
 using Loaders = KauRock.Loaders;
 
@@ -11,29 +13,43 @@ namespace kauGame.Components {
 
 		}
 
-		float[] vertices = {
+		private struct Vertex {
+			public const int Size = sizeof(float) * 5;
+
+			public Vector3 Position;
+			public Vector2 UV;
+
+			public Vertex(float x, float y, float z, float u, float v) {
+				Position.X = x;
+				Position.Y = y;
+				Position.Z = z;
+
+				UV.X = u;
+				UV.Y = v;
+			}
+		}
+
+		Vertex[] vertices = {
 			// X			Y				Z		U	 V
-			-0.5f,  0.5f, -0.5f,	0, 2f / 3,	// 0	// Top face
-			-0.5f,  0.5f,  0.5f,	0, 3f / 3,	// 1
-			 0.5f,  0.5f,  0.5f,	1, 3f / 3,	// 2
-			 0.5f,  0.5f, -0.5f,	1, 2f / 3, // 3
+			new Vertex(	-0.5f,  0.5f, -0.5f,	0, 2f / 3),	// 0	// Top face
+			new Vertex(	-0.5f,  0.5f,  0.5f,	0, 3f / 3),	// 1
+			new Vertex(	 0.5f,  0.5f,  0.5f,	1, 3f / 3),	// 2
+			new Vertex(	 0.5f,  0.5f, -0.5f,	1, 2f / 3), // 3
 
-			-0.5f, -0.5f, -0.5f,	1, 1f / 3, // 4	// Bottom face.
-			-0.5f, -0.5f,  0.5f,	1, 0f / 3, // 5
-			 0.5f, -0.5f,  0.5f,	0, 0f / 3,	// 6
-			 0.5f, -0.5f, -0.5f,	0, 1f / 3,	// 7
+			new Vertex(	-0.5f, -0.5f, -0.5f,	1, 1f / 3), // 4	// Bottom face.
+			new Vertex(	-0.5f, -0.5f,  0.5f,	1, 0f / 3), // 5
+			new Vertex(	 0.5f, -0.5f,  0.5f,	0, 0f / 3),	// 6
+			new Vertex(	 0.5f, -0.5f, -0.5f,	0, 1f / 3),	// 7
 
-			 0.5f,	0.5f,  0.5f,	1, 2f / 3,	// 8	// Top loop
-			 0.5f,	0.5f, -0.5f,	0, 2f / 3,	// 9
-			-0.5f,	0.5f, -0.5f,	1, 2f / 3,	// 10
-			-0.5f,	0.5f,  0.5f,	0, 2f / 3, // 11
+			new Vertex(	 0.5f,	0.5f,  0.5f,	1, 2f / 3),	// 8	// Top loop
+			new Vertex(	 0.5f,	0.5f, -0.5f,	0, 2f / 3),	// 9
+			new Vertex(	-0.5f,	0.5f, -0.5f,	1, 2f / 3),	// 10
+			new Vertex(	-0.5f,	0.5f,  0.5f,	0, 2f / 3), // 11
 
-			 0.5f, -0.5f,  0.5f,	1, 1f / 3, // 12	// Bottom Loop
-			 0.5f, -0.5f, -0.5f,	0, 1f / 3, // 13
-			-0.5f, -0.5f, -0.5f,	1, 1f / 3,	// 14
-			-0.5f, -0.5f,  0.5f,	0, 1f / 3,	// 15
-
-			
+			new Vertex(	 0.5f, -0.5f,  0.5f,	1, 1f / 3), // 12	// Bottom Loop
+			new Vertex(	 0.5f, -0.5f, -0.5f,	0, 1f / 3), // 13
+			new Vertex(	-0.5f, -0.5f, -0.5f,	1, 1f / 3),	// 14
+			new Vertex(	-0.5f, -0.5f,  0.5f,	0, 1f / 3),	// 15
 		};
 
 		uint[] triangles =  {
@@ -46,7 +62,7 @@ namespace kauGame.Components {
 			13, 8, 9,			13, 12, 8,	// Right Face. 
 		};
 
-		int ebo, vbo, vao;
+		int ebo, vertexBuffer, vertexArray;
 
 		ShaderProgram shader;
 		Texture2D texture;
@@ -71,35 +87,48 @@ namespace kauGame.Components {
 			}
 
 			// Create the buffers for our vertex array data and element.
-			vao = GL.GenVertexArray();
-			vbo = GL.GenBuffer();
+			vertexArray = GL.GenVertexArray();
+			vertexBuffer = GL.GenBuffer();
 			ebo = GL.GenBuffer();
 
 			// Tell open GL where we will be writing the vertex array to.
-			GL.BindVertexArray(vao);
+			GL.BindVertexArray(vertexArray);
 
-			// Select the Array Buffer with the pointer of vbo and write the vertex data to it.
-			GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
-			GL.BufferData(BufferTarget.ArrayBuffer, sizeof(int) * vertices.Length, vertices, BufferUsageHint.StaticDraw);
+			// Select the Array Buffer with the pointer of vertexBuffer and write the vertex data to it.
+			GL.BindVertexArray(vertexBuffer);
+			GL.BindBuffer(BufferTarget.ArrayBuffer, vertexBuffer);
 
-			// Select the Element Array Buffer with the pointer of ebo and write the triangles to it.
+			GL.NamedBufferStorage(vertexBuffer, Vertex.Size * vertices.Length, vertices, BufferStorageFlags.MapWriteBit);
+
+			int aPosition = shader.GetAttribLocation("aPosition");
+			GL.VertexArrayAttribBinding(vertexArray, aPosition, 0);
+			GL.EnableVertexArrayAttrib(vertexArray, aPosition);
+			GL.VertexArrayAttribFormat(
+				vertexArray,
+				aPosition,													// The attribute that we are going to set.
+				3,																	// The size of the attribute (3 floats).
+				VertexAttribType.Float,							// The type of attribute (floats).
+				false,															// Don't need to normalize as it's already normalized.
+				0																		// The offset of the item.
+			);
+
+			int aTexCoord = shader.GetAttribLocation("aTexCoord");
+			GL.VertexArrayAttribBinding(vertexArray, aTexCoord, 0);
+			GL.EnableVertexArrayAttrib(vertexArray, aTexCoord);
+			GL.VertexArrayAttribFormat(
+				vertexArray,
+				aTexCoord,															// The attribute that we are going to set.
+				2,																	// The size of the attribute (3 floats).
+				VertexAttribType.Float,							// The type of attribute (floats).
+				false,															// Don't need to normalize as it's already normalized.
+				12									// The offset of the item.
+			);
+
+			GL.VertexArrayVertexBuffer(vertexArray, 0, vertexBuffer, IntPtr.Zero, Vertex.Size);
+
 			GL.BindBuffer(BufferTarget.ElementArrayBuffer, ebo);
 			GL.BufferData(BufferTarget.ElementArrayBuffer, sizeof(uint) * triangles.Length, triangles, BufferUsageHint.StaticDraw);
 
-			// Tell GL the structure of our vertex data and enable what we defined.
-			int stride = (3 + 2) * sizeof(float);
-			
-			int vertPos = shader.GetAttribLocation("aPosition");
-			GL.VertexAttribPointer(vertPos, 3, VertexAttribPointerType.Float, false, stride, 0);
-			GL.EnableVertexAttribArray(vertPos);
-
-			// Texture coordinates.
-			int texPos = shader.GetAttribLocation("aTexCoord");
-			GL.VertexAttribPointer(texPos, 2, VertexAttribPointerType.Float, false, stride, 3 * sizeof(float));
-			GL.EnableVertexAttribArray(texPos);
-
-			// We are done here, let's clean up and un-bind everything we bound.
-			GL.BindVertexArray(0);
 
 			Events.Render += OnRender;
 			Events.Update += OnUpdate;
@@ -127,7 +156,7 @@ namespace kauGame.Components {
 			}
 
 			// Bind the vertex array to use with the triangles.
-			GL.BindVertexArray(vao);
+			GL.BindVertexArray(vertexArray);
 
 			// Draw the element buffer object. (triangles)
 			GL.DrawElements(PrimitiveType.Triangles, triangles.Length, DrawElementsType.UnsignedInt, 0);
@@ -141,8 +170,8 @@ namespace kauGame.Components {
 			GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
 			GL.UseProgram (0);
 
-			// GL.DeleteBuffer (vbo);
-			GL.DeleteVertexArray (vao);
+			// GL.DeleteBuffer (vertexBuffer);
+			GL.DeleteVertexArray (vertexArray);
 			GL.DeleteBuffer (ebo);
 
 			Events.Render -= OnRender;
