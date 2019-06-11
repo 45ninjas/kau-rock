@@ -6,33 +6,36 @@ using MathF = System.MathF;
 namespace kauGame.Components.Cameras {
 	public class FreeCamMotion : Component {
 
-		public float SmoothDecay = 15f;
-		public Vector3 velocity;
+		// How sensitive the mouse is.
+		public float Sensitivity = 0.1f;
 
-		public float MoveSpeed = 4;
+		// How fast the camera speeds up and slows down.
+		public float Drag = 12f;
+		public float Acceleration = 1;
+
+		// The limits for how low and high the player can look.
 		public float MinPitch = -89f;
 		public float MaxPitch = 89f;
 
-		public float Sensitivity = 0.1f;
+		// The pitch and yaw of the camera.
+		private float pitchRads = 0;
+		public float Pitch {
+			get => MathHelper.RadiansToDegrees(pitchRads);
+			set => pitchRads = MathHelper.DegreesToRadians(MathHelper.Clamp(value, MinPitch, MaxPitch));
+		}
 
-		public bool UseUnscaledTime = true;
+		private float yawRads = 0;
+		public float Yaw {
+			get => MathHelper.RadiansToDegrees(yawRads);
+			set => yawRads = MathHelper.DegreesToRadians(value);
+		}
 
 		private Transform transform;
 
-		private Vector2 mousePos;
+		private Vector2 lastMousePos;
 		private bool firstFrame = true;
 
-		private float pitch = 0;
-		private float yaw = 0;
-
-		private float Pitch {
-			get => MathHelper.RadiansToDegrees(pitch);
-			set => pitch = MathHelper.DegreesToRadians(MathHelper.Clamp(value, MinPitch, MaxPitch));
-		}
-		private float Yaw {
-			get => MathHelper.RadiansToDegrees(yaw);
-			set => yaw = MathHelper.DegreesToRadians(value);
-		}
+		private Vector3 velocity;
 
 		public FreeCamMotion(GameObject gameObject) : base(gameObject) {
 		}
@@ -45,81 +48,66 @@ namespace kauGame.Components.Cameras {
 			Events.Update -= Update;
 		}
 
-		void UpdateInputs(float timeDelta, out Vector3 moveVector) {
-			// Get the keyboard state and convert WASD into a vector.
+		Vector3 UpdateInputs() {
+			// Move the camera in the local X and Z directions then normalize
+			// it if it's sqr root is bigger than 1.4 to stop faster motion
+			// while moving in two axises.
+			Vector3 moveVector = Vector3.Zero;
 			var input = Keyboard.GetState();
-
-			moveVector = Vector3.Zero;
 			if(input.IsKeyDown(Key.W))
-				moveVector += transform.Forward;				
+				moveVector += transform.Forward;				// Move forward.
 			if(input.IsKeyDown(Key.S))
-				moveVector -= transform.Forward;
+				moveVector -= transform.Forward;				// Move backward.
 			if(input.IsKeyDown(Key.A))
-				moveVector -= transform.Right;
+				moveVector -= transform.Right;					// Move left.
 			if(input.IsKeyDown(Key.D))
-				moveVector += transform.Right;
+				moveVector += transform.Right;					// Move right.
 
-			if(input.IsKeyDown(Key.Down)) {
-				pitch += Sensitivity * timeDelta * 10;
-			}
-			if(input.IsKeyDown(Key.Up)) {
-				pitch -= Sensitivity * timeDelta * 10;
-			}
-			if(input.IsKeyDown(Key.Left)) {
-				yaw -= Sensitivity * timeDelta * 10;
-			}
-			if(input.IsKeyDown(Key.Right)) {
-				yaw += Sensitivity * timeDelta * 10;
-			}
-
-			// Normalize the input if it's bigger than 1 squared. (z and x motion).
 			if(moveVector.LengthSquared > 1.4f)
-				moveVector.NormalizeFast();
+				moveVector.Normalize();
 
-			// Do mouse inputs.
+			// Get the mouse input and the alternative keyboard arrow keys.
 			var mouseInput = Mouse.GetState();
 
-			// If this is the first frame, set the mouse input to the current input.
+			if(input.IsKeyDown(Key.Down))
+				Pitch += Sensitivity * Time.UnscaledDelta * 40;	// Look down.
+			if(input.IsKeyDown(Key.Up))
+				Pitch -= Sensitivity * Time.UnscaledDelta * 40;	// Look up.
+			if(input.IsKeyDown(Key.Left))
+				Yaw -= Sensitivity * Time.UnscaledDelta * 40;		// Look left.
+			if(input.IsKeyDown(Key.Right))
+				Yaw += Sensitivity * Time.UnscaledDelta * 40;		// Look right.
+
+			
+			// On the first frame set the lastMousePos to the current mouse position.
+			// This is done to stop the camera jumping when the game loads as the delta
+			// will be extremely high.
 			if(firstFrame) {
-				mousePos = new Vector2(mouseInput.X, mouseInput.Y);
+				lastMousePos = new Vector2(mouseInput.X, mouseInput.Y);
 				firstFrame = false;
 			}
 
-			// Get the mouse delta.
-			float deltaX = mouseInput.X - mousePos.X;
-			float deltaY = mouseInput.Y - mousePos.Y;
+			// Add yaw and pitch to the camera based on the delta of the mouse and update
+			// the lastMousePos so we can get the delta next frame.
+			Yaw += (mouseInput.X - lastMousePos.X) * Sensitivity;
+			Pitch += (mouseInput.Y - lastMousePos.Y) * Sensitivity;
 
-			// Update the mouse position for next frame.
-			mousePos.X = mouseInput.X;
-			mousePos.Y = mouseInput.Y;
+			lastMousePos.X = mouseInput.X;
+			lastMousePos.Y = mouseInput.Y;
 
-			// Set the yaw and pitch while clamping pitch.
-			Yaw += deltaX * Sensitivity;
-			Pitch += deltaY * Sensitivity;
+			return moveVector;
 		}
 
 		void Update() {
-			// Set the time delta to unscaled or scaled depending on what the UseUnscaledTime is at.
-			float timeDelta = ((UseUnscaledTime)? Time.UnscaledDelta : Time.Delta);
-			// Get the inputs from the keyboard and mouse.
-			UpdateInputs(timeDelta, out Vector3 moveVector);
+			// Update the inputs and rotate the camera.
+			var moveVector = UpdateInputs();
+			transform.Rotation = Quaternion.FromEulerAngles(pitchRads, yawRads, 0);
 
-			// Rotate the camera based on the pitch and yaw.
-			var rotation = Quaternion.FromEulerAngles(pitch, yaw, 0);
-
-			// Set the rotation of the transform.
-			transform.Rotation = rotation;
-
-			Vector3 targetVelocty = moveVector * MoveSpeed;
-
-			velocity += targetVelocty * timeDelta;
-			velocity -= velocity * SmoothDecay * timeDelta;
-
-			// Move the camera.
-			//transform.Position += moveVector * MoveSpeed * timeDelta;
-
+			// Add our moveVector to our velocity then apply drag. Finally apply the
+			// velocity to our position.
+			velocity += moveVector * Acceleration * Time.UnscaledDelta;
+			velocity -= velocity * Drag * Time.UnscaledDelta;
 			transform.Position += velocity;
-
 		}
 	}
 }
