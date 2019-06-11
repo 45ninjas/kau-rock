@@ -16,7 +16,7 @@ namespace KauRock {
 
 		public Color Sky = new Color(64, 104, 173, 255);
 		public Color Horizon = new Color(99, 144, 201, 255);
-		public Color Ground = new Color(43, 55, 63, 255);
+		public Color Ground = new Color(180, 180, 180, 0);
 
 		public struct Vertex {
 			public const int Size = sizeof(float) * 6;
