@@ -90,7 +90,7 @@ namespace kauGame.Components.Cameras {
 			// Add yaw and pitch to the camera based on the delta of the mouse and update
 			// the lastMousePos so we can get the delta next frame.
 			Yaw += (mouseInput.X - lastMousePos.X) * Sensitivity;
-			Pitch += (mouseInput.Y - lastMousePos.Y) * Sensitivity;
+			Pitch -= (mouseInput.Y - lastMousePos.Y) * Sensitivity;
 
 			lastMousePos.X = mouseInput.X;
 			lastMousePos.Y = mouseInput.Y;
@@ -101,7 +101,7 @@ namespace kauGame.Components.Cameras {
 		void Update() {
 			// Update the inputs and rotate the camera.
 			var moveVector = UpdateInputs();
-			transform.Rotation = Quaternion.FromEulerAngles(pitchRads, yawRads, 0);
+			transform.Rotation = Quaternion.FromEulerAngles(-pitchRads, yawRads, 0);
 
 			// Add our moveVector to our velocity then apply drag. Finally apply the
 			// velocity to our position.
