@@ -75,9 +75,6 @@ namespace kauGame.Components {
 			using (var loader = new Loaders.Shader ()) {
 				// Create a new shader from the loader.
 				shader = loader.Load ("resources/shaders/generic.glsl");
-
-				// Set the shader's Transform.
-				shader.Transform = GameObject.Transform;
 			}
 
 			using (var loader = new Loaders.Texture ()) {
@@ -141,7 +138,7 @@ namespace kauGame.Components {
 		public void OnRender () {
 
 			// Use our shader.
-			shader.UseProgram();
+			shader.UseProgram(GameObject.Transform.Matrix);
 
 			// TODO: This is shit and inefficient. Get rid of it.
 			shader.SetMatrix("view", Camera.ActiveCamera.GetViewMatrix());

@@ -195,9 +195,9 @@ namespace KauRock {
 		public void Render(Matrix4 view, Matrix4 projection)
 		{
 			// Use our pretty shader and our vertex array.
-			shader.SetMatrix("view", view.ClearTranslation().ClearScale());
-			shader.SetMatrix("projection", projection);
-			shader.UseProgram();
+			// shader.SetMatrix("view", view.ClearTranslation().ClearScale());
+			// shader.SetMatrix("projection", projection);
+			shader.UseProgram(Matrix4.Identity, view.ClearTranslation(), projection);
 			GL.BindVertexArray(vertexArray);
 
 			// Draw the element buffer object.

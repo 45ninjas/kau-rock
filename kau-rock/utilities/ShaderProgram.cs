@@ -9,8 +9,13 @@ namespace KauRock {
 
 		public readonly int Program;
 
-		public Transform Transform = null;
-		private int? transformMatrixLocation = null;
+		private int viewMatrixLocation;
+		private int projectionMatrixLocation;
+		private float lastTime = 0;
+
+		private int transformMatrixLocation;
+
+		private const bool TRANSPOSE = true;
 
 		public ShaderProgram (int[] shaders) {
 			Program = GL.CreateProgram ();
@@ -39,14 +44,11 @@ namespace KauRock {
 		}
 
 		private void GetAllUniforms () {
-			// Set the shader handle.
 
+			// Get all the locations for the uniforms and put them into the dictionary for later.
 			uniformLocations = new Dictionary<string, int> ();
-
-			// Get the total amount of uniforms for this shader.
 			GL.GetProgram (Program, GetProgramParameterName.ActiveUniforms, out int uniformCount);
-
-			// Go over each uniform in this shader and save the location and name of each.            
+     
 			for (int i = 0; i < uniformCount; i++) {
 				string name = GL.GetActiveUniform (Program, i, out _, out _);
 				int location = GL.GetUniformLocation (Program, name);
@@ -55,23 +57,58 @@ namespace KauRock {
 				Log.Debug(this, $"Shader Uniform {name} at {location}");
 			}
 
-			// Set the transform matrix location if it exists.
-			if (uniformLocations.TryGetValue ("transform", out int matrixLocation))
-				transformMatrixLocation = matrixLocation;
-			else
-				transformMatrixLocation = null;
+
+			// Set the matrix locations and If they don't exist use -1.
+			if (!uniformLocations.TryGetValue ("transform", out transformMatrixLocation))
+				transformMatrixLocation = -1;
+
+			if (!uniformLocations.TryGetValue ("view", out viewMatrixLocation))
+				viewMatrixLocation = -1;
+
+			if (!uniformLocations.TryGetValue ("projection", out projectionMatrixLocation))
+				projectionMatrixLocation = -1;
 		}
 
-		// Use the shader program somewhere.
-		public void UseProgram (bool useTransformMatrix = true) {
 
-			// Use the shader
+		public void UseProgram(Matrix4 transform, Matrix4 view, Matrix4 projection) {
+			
+			if(viewMatrixLocation >= 0)
+				GL.ProgramUniformMatrix4(Program, viewMatrixLocation, TRANSPOSE, ref view);
+			else
+				Log.Warning(this, "this shader does not have a view matrix uniform but one was set.");
+
+			if(viewMatrixLocation >= 0)
+				GL.ProgramUniformMatrix4(Program, projectionMatrixLocation, TRANSPOSE, ref projection);
+			else
+				Log.Warning(this, "this shader does not have a projection matrix uniform but one was set.");
+
+
 			GL.UseProgram (Program);
+		}
 
-			// Set the transform matrix to the matrix on the transform if all is good.
-			if (useTransformMatrix && transformMatrixLocation != null && Transform != null) {
-				GL.ProgramUniformMatrix4 (Program, (int) transformMatrixLocation, true, ref Transform.Matrix);
+
+		public void UseProgram (Matrix4 transform) {
+			// Set the transform matrix.
+			if (transformMatrixLocation >= 0)
+				GL.ProgramUniformMatrix4 (Program, (int) transformMatrixLocation, TRANSPOSE, ref transform);
+
+			// We only want to assign the camera matrices once, only do it if the time is different.
+			if(lastTime != Time.UnscaledGameTime) {
+			
+				// Set the view matrix if it's set.
+				if(viewMatrixLocation >= 0) {
+					var view = Camera.ActiveCamera.GetViewMatrix();
+					GL.ProgramUniformMatrix4(Program, viewMatrixLocation, TRANSPOSE, ref view);
+				}
+			
+				// Set the projection matrix if it's set.
+				if(projectionMatrixLocation >= 0) {
+					var projection = Camera.ActiveCamera.GetProjectionMatrix();
+					GL.ProgramUniformMatrix4(Program, projectionMatrixLocation, TRANSPOSE, ref projection);
+				}
 			}
+
+			GL.UseProgram (Program);
 		}
 		// Destroy the shader program.
 		public void Destroy () {
@@ -86,7 +123,7 @@ namespace KauRock {
 		public int GetAttribLocation(string attribName) => GL.GetAttribLocation(Program, attribName);
 
 		// Setting a matrix variable for the shader.
-		public void SetMatrix (int location, Matrix4 matrix) => GL.ProgramUniformMatrix4 (Program, location, true, ref matrix);
+		public void SetMatrix (int location, Matrix4 matrix) => GL.ProgramUniformMatrix4 (Program, location, TRANSPOSE, ref matrix);
 		public void SetMatrix (string name, Matrix4 matrix) => SetMatrix (uniformLocations[name], matrix);
 
 		// Setting a float for the shader.
