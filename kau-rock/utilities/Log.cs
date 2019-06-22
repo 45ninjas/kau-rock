@@ -10,12 +10,25 @@ namespace KauRock {
 			Error = 3,
 			};
 
-			// Print a message to the console. Example: '[Debug] message'
-			public static void Print (Level level, string message, string source = null) {
+		// Print a message to the console. Example: '[Debug] message'
+		public static void Print (Level level, string message, string source = null) {
+
+			// Set the console colours.
+			Console.ResetColor();
+			switch(level) {
+				case Level.Error:
+					Console.ForegroundColor = ConsoleColor.Red;
+					break;
+				case Level.Warning:
+					Console.ForegroundColor = ConsoleColor.Yellow;
+					break;
+			}
+
+			// Write [ Debug ]
 			Console.Write ("[");
 			Console.Write (level.ToString ());
 			Console.Write ("] ");
-
+			
 			if (source != null) {
 			Console.Write (source);
 			Console.Write (": ");

@@ -78,6 +78,9 @@ namespace KauRock {
 			elementBuffer = GL.GenBuffer();
 			GL.BindBuffer(BufferTarget.ElementArrayBuffer, elementBuffer);
 			GL.BufferData(BufferTarget.ElementArrayBuffer, sizeof(int) * tris.Length, tris, BufferUsageHint.StaticDraw);
+
+			GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+			GL.BindVertexArray(0);
 		}
 
 		private void GenerateDome(int horizontalLines, int verticalClip, int verticalLines, out Vertex[] verts, out int[] tris)
