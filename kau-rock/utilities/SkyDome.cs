@@ -12,7 +12,7 @@ using OpenTK.Graphics.OpenGL4;
 using Mathf = System.MathF;
 
 namespace KauRock {
-	public class SkyDome : ISky, System.IDisposable{
+	public class SkyDome : IGizmo, System.IDisposable{
 
 		public Color Sky = new Color(64, 104, 173, 255);
 		public Color Horizon = new Color(99, 144, 201, 255);

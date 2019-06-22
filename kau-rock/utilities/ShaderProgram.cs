@@ -69,6 +69,16 @@ namespace KauRock {
 				projectionMatrixLocation = -1;
 		}
 
+		public void ListAttribs() {
+			GL.GetProgram(Program, GetProgramParameterName.ActiveAttributes, out int attribCount);
+
+			for (int i = 0; i < attribCount; i++) {
+				string name = GL.GetActiveAttrib(Program, i, out int size, out ActiveAttribType type);
+				int location = GL.GetAttribLocation(Program, name);
+				Log.Debug(this, $"{name}[{type}] is at {location}");
+			}
+		}
+
 
 		public void UseProgram(Matrix4 transform, Matrix4 view, Matrix4 projection) {
 			

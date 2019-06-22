@@ -5,7 +5,8 @@ namespace KauRock {
 	public class Camera : Component {
 		public static Camera ActiveCamera;
 
-		public KauRock.Utilities.ISky Sky;
+		public Utilities.IGizmo Sky;
+		public List<Utilities.IGizmo> Gizmos = new List<Utilities.IGizmo>();
 
 		private Transform transform;
 
@@ -77,7 +78,8 @@ namespace KauRock {
 			ActiveCamera = this;
 
 			// subscribe to some events.
-			Events.RenderFirst += Render;
+			Events.RenderFirst += RenderFirst;
+			Events.RenderLast += RenderLast;
 			Events.WindowResize += OnResize;
 
 			transform = GameObject.Transform;
@@ -89,7 +91,8 @@ namespace KauRock {
 				ActiveCamera = null;
 
 			// Un-subscribe from the events.
-			Events.RenderFirst -= Render;
+			Events.RenderFirst -= RenderFirst;
+			Events.RenderLast -= RenderLast;
 			Events.WindowResize -= OnResize;
 		}
 
@@ -98,9 +101,21 @@ namespace KauRock {
 			AspectRatio = (float)window.Width / (float)window.Height;
 		}
 
-		void Render() {
+		void RenderLast() {
+			GL.Clear(ClearBufferMask.DepthBufferBit);
+			
+			var viewMatrix = GetViewMatrix();
+			if(ActiveCamera == this && Gizmos.Count > 0) {
+				for (int i = 0; i < Gizmos.Count; i++) {
+					Gizmos[i].Render(viewMatrix, projectionMatrix);
+				}
+			}
+		}
+
+		void RenderFirst() {
+			var viewMatrix = GetViewMatrix();
 			if(ActiveCamera == this && Sky != null) {
-				Sky.Render(GetViewMatrix(), GetProjectionMatrix());
+				Sky.Render(viewMatrix, projectionMatrix);
 			}
 		}
 	}
