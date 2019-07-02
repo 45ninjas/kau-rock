@@ -74,7 +74,7 @@ namespace kauGame.Components {
 			// Use the Shader loader to loait std the shaders.
 			using (var loader = new Loaders.Shader ()) {
 				// Create a new shader from the loader.
-				shader = loader.Load ("resources/shaders/generic.glsl");
+				shader = loader.Load ("resources/shaders/generic-unlit.glsl");
 			}
 
 			using (var loader = new Loaders.Texture ()) {
