@@ -12,6 +12,8 @@ namespace KauRock {
 			this.Z = Z;
 		}
 
+		override public string ToString() => $"({X}, {Y}, {Z})";
+		
 		public static implicit operator Vector3(VoxPos pos) {
 			return new Vector3(pos.X,pos.Y,pos.Z);
 		}
