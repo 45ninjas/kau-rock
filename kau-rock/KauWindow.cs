@@ -9,7 +9,7 @@ namespace KauRock {
 
     public Color ClearColor;
     public KauWindow (int width, int height, string title) : base( width, height, GraphicsMode.Default, title ) {
-
+      CommandManager.SetStdIn(Console.In);
     }
 
     protected override void OnKeyDown (KeyboardKeyEventArgs e) {
@@ -67,7 +67,7 @@ namespace KauRock {
       GL.DebugMessageCallback( GL_ErrorCallback, IntPtr.Zero );
       GL.DebugMessageControl( DebugSourceControl.DontCare, DebugTypeControl.DontCare, DebugSeverityControl.DontCare, 0, new int[0], true );
 
-      CursorVisible = false;
+      // CursorVisible = false;
 
       GL.ClearColor( ClearColor );
       GL.Enable( EnableCap.DepthTest );

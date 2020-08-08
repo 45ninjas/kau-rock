@@ -3,17 +3,44 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading;
 using KauRock;
+using System.Threading.Tasks;
 
 namespace KauRock {
   public delegate string Command (params string[] args);
   public static class CommandManager {
 
-    private static System.IO.TextReader stdIn;
     private static Dictionary<string, Command> commands = new Dictionary<string, Command>();
 
     public static void Add (string command, Command action) => commands.Add( command, action );
     public static bool Exists (string command) => commands.ContainsKey( command );
     public static void Remove (string command) => commands.Remove( command );
+
+    private static Thread LineReader;
+    private static Action<string> inputReceived = InputReceived;
+
+    private static void InputReceived (string obj) {
+      var result = Execute(obj);
+      if(!String.IsNullOrWhiteSpace(result))
+        Console.WriteLine(result);
+    }
+
+    public static void SetStdIn (System.IO.TextReader stdIn) {
+      if ( LineReader != null )
+        LineReader.Abort();
+
+      LineReader = new Thread( InputLine );
+      LineReader.Start( stdIn );
+    }
+
+    public static void InputLine (object obj) {
+      var input = ( System.IO.TextReader ) obj;
+      while (true) {
+        var command = input.ReadLine();
+
+        if(command != null && inputReceived != null)
+          inputReceived.Invoke(command);
+      }
+    }
 
     public static string Execute (string input) {
 
@@ -22,8 +49,7 @@ namespace KauRock {
 
 
       // Split up the string at every space while honouring quote marks.
-      var collection = Regex.Matches( input, @"[\""]. + ? [\""] | [ ^ ] + ", RegexOptions.Compiled );
-      // var collection = Regex.Matches(input, @" ( ? <= "") | \w[\w\ s] * ( ? = "") | \w + |"" [\w\ s] * """, RegexOptions.Compiled);
+      var collection = Regex.Matches( input, "(\"[^\"]+\"|[^\\s\"]+)", RegexOptions.Compiled );
 
       // Create an array for the arguments.
       string[] args;
@@ -53,7 +79,7 @@ namespace KauRock {
       if ( commands.ContainsKey( command ) )
         commands[command].Invoke( args );
 
-      return string.Format( "{0} was not found.Use help for a list of commands ", command );
+      return string.Format( "{0} was not found. Use help for a list of commands ", command );
     }
   }
 
