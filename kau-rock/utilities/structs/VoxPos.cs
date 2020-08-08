@@ -31,14 +31,16 @@ namespace KauRock {
     override public string ToString () => $"({X}, {Y}, {Z})";
 
     override public bool Equals (object obj) {
-      if ( obj == null )
-        return false;
+      if ( obj is VoxPos pos )
+        return Equals( pos );
 
-      if ( this.GetType() != obj.GetType() )
-        return false;
+      return false;
+    }
 
-      VoxPos p = ( VoxPos ) obj;
-      return this.X == p.X && this.Y == p.Y && this.Z == p.Z;
+    public bool Equals (VoxPos p) => this.X == p.X && this.Y == p.Y && this.Z == p.Z;
+
+    public override int GetHashCode () {
+        return X.GetHashCode() + Y.GetHashCode() + Z.GetHashCode();
     }
 
     public static implicit operator Vector3 (VoxPos pos) {
