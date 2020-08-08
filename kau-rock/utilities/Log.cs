@@ -1,152 +1,152 @@
 using System;
 
 namespace KauRock {
-	public static class Log {
+  public static class Log {
 
-		public enum Level {
-			Debug = 0,
-			Info = 1,
-			Warning = 2,
-			Error = 3,
-			};
+    public enum Level {
+      Debug = 0,
+      Info = 1,
+      Warning = 2,
+      Error = 3,
+    };
 
-		// Print a message to the console. Example: '[Debug] message'
-		public static void Print (Level level, string message, string source = null) {
+    // Print a message to the console. Example: '[Debug] message'
+    public static void Print (Level level, string message, string source = null) {
 
-			// Set the console colours.
-			Console.ResetColor();
-			switch(level) {
-				case Level.Error:
-					Console.ForegroundColor = ConsoleColor.Red;
-					break;
-				case Level.Warning:
-					Console.ForegroundColor = ConsoleColor.Yellow;
-					break;
-			}
+      // Set the console colours.
+      Console.ResetColor();
+      switch ( level ) {
+        case Level.Error:
+          Console.ForegroundColor = ConsoleColor.Red;
+          break;
+        case Level.Warning:
+          Console.ForegroundColor = ConsoleColor.Yellow;
+          break;
+      }
 
-			// Write [ Debug ]
-			Console.Write ("[");
-			Console.Write (level.ToString ());
-			Console.Write ("] ");
-			
-			if (source != null) {
-			Console.Write (source);
-			Console.Write (": ");
-			}
+      // Write [ Debug ]
+      Console.Write( "[" );
+      Console.Write( level.ToString() );
+      Console.Write( "] " );
 
-			Console.WriteLine (message);
-		}
+      if ( source != null ) {
+        Console.Write( source );
+        Console.Write( ": " );
+      }
 
-		public static void Debug (object from, string format, params object[] args) {
+      Console.WriteLine( message );
+    }
 
-			string source = null;
-			if (from != null)
-				source = from.ToString ();
+    public static void Debug (object from, string format, params object[] args) {
 
-			Print (Level.Debug, string.Format (format, args), source);
-		}
+      string source = null;
+      if ( from != null )
+        source = from.ToString();
 
-		public static void Debug (object from, object value) {
+      Print( Level.Debug, string.Format( format, args ), source );
+    }
 
-			string source = null;
-			if (from != null)
-				source = from.ToString ();
+    public static void Debug (object from, object value) {
 
-			Print (Level.Debug, value.ToString (), source);
-		}
+      string source = null;
+      if ( from != null )
+        source = from.ToString();
 
-		public static void Debug (object from, string message) {
+      Print( Level.Debug, value.ToString(), source );
+    }
 
-			string source = null;
-			if (from != null)
-				source = from.ToString ();
+    public static void Debug (object from, string message) {
 
-			Print (Level.Debug, message, source);
-		}
+      string source = null;
+      if ( from != null )
+        source = from.ToString();
 
-		public static void Info (object from, string format, params object[] args) {
+      Print( Level.Debug, message, source );
+    }
 
-			string source = null;
-			if (from != null)
-				source = from.ToString ();
+    public static void Info (object from, string format, params object[] args) {
 
-			Print (Level.Info, string.Format (format, args), source);
-		}
+      string source = null;
+      if ( from != null )
+        source = from.ToString();
 
-		public static void Info (object from, object value) {
+      Print( Level.Info, string.Format( format, args ), source );
+    }
 
-			string source = null;
-			if (from != null)
-				source = from.ToString ();
+    public static void Info (object from, object value) {
 
-			Print (Level.Info, value.ToString (), source);
-		}
+      string source = null;
+      if ( from != null )
+        source = from.ToString();
 
-		public static void Info (object from, string message) {
+      Print( Level.Info, value.ToString(), source );
+    }
 
-			string source = null;
-			if (from != null)
-				source = from.ToString ();
+    public static void Info (object from, string message) {
 
-			Print (Level.Info, message, source);
-		}
+      string source = null;
+      if ( from != null )
+        source = from.ToString();
 
-		public static void Warning (object from, string format, params object[] args) {
+      Print( Level.Info, message, source );
+    }
 
-			string source = null;
-			if (from != null)
-				source = from.ToString ();
+    public static void Warning (object from, string format, params object[] args) {
 
-			Print (Level.Warning, string.Format (format, args), source);
-		}
+      string source = null;
+      if ( from != null )
+        source = from.ToString();
 
-		public static void Warning (object from, object value) {
+      Print( Level.Warning, string.Format( format, args ), source );
+    }
 
-			string source = null;
-			if (from != null)
-				source = from.ToString ();
+    public static void Warning (object from, object value) {
 
-			Print (Level.Warning, value.ToString (), source);
-		}
+      string source = null;
+      if ( from != null )
+        source = from.ToString();
 
-		public static void Warning (object from, string message) {
+      Print( Level.Warning, value.ToString(), source );
+    }
 
-			string source = null;
-			if (from != null)
-				source = from.ToString ();
+    public static void Warning (object from, string message) {
 
-			Print (Level.Warning, message, source);
-		}
+      string source = null;
+      if ( from != null )
+        source = from.ToString();
 
-		public static void Error (object from, string format, params object[] args) {
+      Print( Level.Warning, message, source );
+    }
 
-			string source = null;
-			if (from != null)
-				source = from.ToString ();
+    public static void Error (object from, string format, params object[] args) {
 
-			Print (Level.Error, string.Format (format, args), source);
-		}
+      string source = null;
+      if ( from != null )
+        source = from.ToString();
 
-		public static void Error (object from, object value) {
+      Print( Level.Error, string.Format( format, args ), source );
+    }
 
-			string source = null;
-			if (from != null)
-				source = from.ToString ();
+    public static void Error (object from, object value) {
 
-			Print (Level.Error, value.ToString (), source);
-		}
+      string source = null;
+      if ( from != null )
+        source = from.ToString();
 
-		public static void Error (object from, string message) {
+      Print( Level.Error, value.ToString(), source );
+    }
 
-			string source = null;
-			if (from != null)
-				source = from.ToString ();
+    public static void Error (object from, string message) {
 
-			Print (Level.Error, message, source);
-		}
+      string source = null;
+      if ( from != null )
+        source = from.ToString();
 
-		public static void Error (Exception exception) {
-			Print (Level.Error, exception.ToString (), null);
-		}
-	}
+      Print( Level.Error, message, source );
+    }
+
+    public static void Error (Exception exception) {
+      Print( Level.Error, exception.ToString(), null );
+    }
+  }
 }

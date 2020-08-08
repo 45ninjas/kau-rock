@@ -5,68 +5,64 @@ using System.Threading;
 using KauRock;
 
 namespace KauRock {
-	public delegate string Command (params string[] args);
-	public static class CommandManager {
+  public delegate string Command(params string[] args);
+  public static class CommandManager {
 
-		private static System.IO.TextReader stdIn;
-		private static Dictionary<string, Command> commands = new Dictionary<string, Command> ();
+    private static System.IO.TextReader stdIn;
+    private static Dictionary<string, Command> commands = new Dictionary<string, Command>();
 
-		public static void Add (string command, Command action) => commands.Add (command, action);
-		public static bool Exists (string command) => commands.ContainsKey (command);
-		public static void Remove (string command) => commands.Remove (command);
-        
-		public static string Execute (string input) {
+    public static void Add(string command, Command action) => commands.Add(command, action);
+    public static bool Exists(string command) => commands.ContainsKey(command);
+    public static void Remove(string command) => commands.Remove(command);
 
-				if (string.IsNullOrWhiteSpace (input))
-					return "";
+    public static string Execute(string input) {
 
-				// Split up the string at every space while honouring quote marks.
-				var collection = Regex.Matches (input, @"[\""]. + ? [\""] | [ ^ ] + ", RegexOptions.Compiled);
-            // var collection = Regex.Matches(input, @" ( ? <= "") | \w[\w\ s] * ( ? = "") | \w + |"" [\w\ s] * """, RegexOptions.Compiled);
+      if (string.IsNullOrWhiteSpace(input))
+        return "";
 
-            // Create an array for the arguments.
-            string[] args;
-            if (collection.Count > 1)
-                args = new string[collection.Count - 1];
-            else
-                args = new string[0];
 
-            // Get the command and assign each arg (if any exist)
-            string command = null;
-            int count = 0;
-            foreach (Match match in collection)
-            {
+      // Split up the string at every space while honouring quote marks.
+      var collection = Regex.Matches(input, @"[\""]. + ? [\""] | [ ^ ] + ", RegexOptions.Compiled);
+      // var collection = Regex.Matches(input, @" ( ? <= "") | \w[\w\ s] * ( ? = "") | \w + |"" [\w\ s] * """, RegexOptions.Compiled);
 
-                // Set the command from the first 'argument'
-                if (command == null)
-                    command = match.Value;
-                else
-                {
-                    args[count] = match.Value;
-                    count++;
-                }
-            }
+      // Create an array for the arguments.
+      string[] args;
+      if (collection.Count > 1)
+        args = new string[collection.Count - 1];
+      else
+        args = new string[0];
 
-            // Execute the command.
-            return Execute(command, args);
+      // Get the command and assign each arg (if any exist)
+      string command = null;
+      int count = 0;
+      foreach (Match match in collection) {
+
+        // Set the command from the first 'argument'
+        if (command == null)
+          command = match.Value;
+        else {
+          args[count] = match.Value;
+          count++;
         }
-        public static string Execute(string command, params string[] args)
-        {
-            if (commands.ContainsKey(command))
-                commands[command].Invoke(args);
+      }
 
-            return string.Format(" { 0 } was not found.Use help for a list of commands ", command);
-        }
+      // Execute the command.
+      return Execute(command, args);
     }
+    public static string Execute(string command, params string[] args) {
+      if (commands.ContainsKey(command))
+        commands[command].Invoke(args);
 
-[System.AttributeUsage (System.AttributeTargets.Method)]
-    public class CommandInfo : System.Attribute
-    {
-        private string helpText;
-
-        public CommandInfo (string helpText)
-        {
-            this.helpText = helpText;
-        }
+      return string.Format(" { 0 } was not found.Use help for a list of commands ", command);
     }
+  }
+
+  [System.AttributeUsage(System.AttributeTargets.Method)]
+  public class CommandInfo : System.Attribute {
+    private string helpText;
+
+    public CommandInfo(string helpText) {
+      this.helpText = helpText;
+    }
+  }
 }

@@ -5,38 +5,38 @@ using System.Collections.Generic;
 
 namespace KauRock.Terrain {
 
-	public class ChunkManager {
-		private Dictionary<VoxPos, Chunk> loadedChunks = new Dictionary<VoxPos, Chunk>();
+  public class ChunkManager {
+    private Dictionary<VoxPos, Chunk> loadedChunks = new Dictionary<VoxPos, Chunk>();
 
-		public void AddChunk(Chunk chunk) {
-			if(!loadedChunks.ContainsKey(chunk.Position))
-				loadedChunks.Add(chunk.Position, chunk);
-			
-			else
-				Log.Warning(this, $"Chunk {chunk.Position} already exists.");
-		}
+    public void AddChunk (Chunk chunk) {
+      if ( !loadedChunks.ContainsKey( chunk.Position ) )
+        loadedChunks.Add( chunk.Position, chunk );
 
-		public void RemoveChunk(Chunk chunk) {
-			if(loadedChunks.ContainsKey(chunk.Position))
-				loadedChunks.Remove(chunk.Position);
-			
-			else
-				Log.Warning(this, $"Chunk {chunk.Position} does not exist.");
-		}
+      else
+        Log.Warning( this, $"Chunk {chunk.Position} already exists." );
+    }
 
-		public Chunk GetChunk(VoxPos position) => loadedChunks.GetValueOrDefault(position);
-		public bool TryGetChunk(VoxPos position, out Chunk chunk) => loadedChunks.TryGetValue(position, out chunk);
+    public void RemoveChunk (Chunk chunk) {
+      if ( loadedChunks.ContainsKey( chunk.Position ) )
+        loadedChunks.Remove( chunk.Position );
 
-		public VoxPos[] GetNeighbors(Chunk chunk) {
-			Stack<VoxPos> neighbors = new Stack<VoxPos>();
+      else
+        Log.Warning( this, $"Chunk {chunk.Position} does not exist." );
+    }
 
-			for (int i = 0; i < 6; i++) {
-					VoxPos pos = chunk.Position + VoxPos.AllDirections[i];
-					if(loadedChunks.ContainsKey(pos))
-						neighbors.Push(pos);
-			}
+    public Chunk GetChunk (VoxPos position) => loadedChunks.GetValueOrDefault( position );
+    public bool TryGetChunk (VoxPos position, out Chunk chunk) => loadedChunks.TryGetValue( position, out chunk );
 
-			return neighbors.ToArray();
-		}
-	}
+    public VoxPos[] GetNeighbors (Chunk chunk) {
+      Stack<VoxPos> neighbors = new Stack<VoxPos>();
+
+      for ( int i = 0; i < 6; i++ ) {
+        VoxPos pos = chunk.Position + VoxPos.AllDirections[i];
+        if ( loadedChunks.ContainsKey( pos ) )
+          neighbors.Push( pos );
+      }
+
+      return neighbors.ToArray();
+    }
+  }
 }
