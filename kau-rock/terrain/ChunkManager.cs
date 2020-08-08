@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace KauRock.Terrain {
 
-  public class ChunkManager {
+  public class ChunkManager : Component {
     private Dictionary<VoxPos, Chunk> loadedChunks = new Dictionary<VoxPos, Chunk>();
 
     public void AddChunk (Chunk chunk) {

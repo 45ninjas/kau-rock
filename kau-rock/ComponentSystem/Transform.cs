@@ -31,10 +31,10 @@ namespace KauRock {
     public Matrix4 Matrix = Matrix4.Identity;
 
     private bool matrixIsDirty = false;
-    public Transform(GameObject gameObject) : base(gameObject) {
+    public Transform() {
       UpdateMatrix();
     }
-    public Transform(GameObject gameObject, Vector3 Position, Quaternion Rotation, Vector3 Scale) : base(gameObject) {
+    public Transform(Vector3 Position, Quaternion Rotation, Vector3 Scale){
       this.Position = Position;
       this.Scale = Scale;
       this.Rotation = Rotation;

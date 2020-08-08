@@ -3,8 +3,8 @@ using OpenTK;
 using OpenTK.Input;
 using MathF = System.MathF;
 
-namespace kauGame.Components.Cameras {
-  public class FreeCamMotion : Component {
+namespace KauGame.Components {
+  public class FreeCam : Component {
 
     // How sensitive the mouse is.
     public float Sensitivity = 0.1f;
@@ -36,9 +36,6 @@ namespace kauGame.Components.Cameras {
     private bool firstFrame = true;
 
     private Vector3 velocity;
-
-    public FreeCamMotion(GameObject gameObject) : base(gameObject) {
-    }
 
     public override void OnStart() {
       Events.Update += Update;

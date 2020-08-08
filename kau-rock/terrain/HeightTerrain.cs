@@ -1,7 +1,7 @@
 using OpenTK;
 
 namespace KauRock.Terrain {
-  public class HeightTerrain : IVoxelProvider {
+  public class HeightTerrain : Component, IVoxelProvider {
     public readonly Noise.Value NoiseFunction;
 
     public readonly float NoiseScale = 0;

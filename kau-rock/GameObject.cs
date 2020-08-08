@@ -18,16 +18,24 @@ namespace KauRock {
 
     private bool hasStarted = false;
 
-    public GameObject (string name) {
-      Transform = new Transform( this );
+    public GameObject (string name, params Component[] components) {
+      Transform = new Transform();
+      AddComponent( Transform );
+
       Name = name;
       SetParent( null );
+
+      AddComponents( components );
     }
 
-    public GameObject (GameObject parent, string name) {
+    public GameObject (GameObject parent, string name, params Component[] components) {
+      Transform = new Transform();
+      AddComponent(Transform);
+
       Name = name;
-      Transform = new Transform( this );
       SetParent( parent );
+
+      AddComponents( components );
     }
 
     public void OnStart () {
@@ -80,6 +88,12 @@ namespace KauRock {
         SceneManager.RootObjects.Add( this );
     }
 
+    private void AddComponents (IEnumerable<Component> components) {
+      foreach ( var component in components ) {
+        AddComponent( component );
+      }
+    }
+
     public void AddComponent (Component component) {
       if ( Components.Contains( component ) ) {
         Log.Warning( this, "Unable to add component {0} because it already exists.", component );
@@ -88,6 +102,7 @@ namespace KauRock {
 
       // Add the component.
       Components.Add( component );
+      component.GameObject = this;
 
       // Call OnStart if the game object has already started.
       if ( hasStarted ) {

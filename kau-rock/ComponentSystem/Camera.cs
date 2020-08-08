@@ -52,7 +52,7 @@ namespace KauRock {
     }
 
     Matrix4 projectionMatrix = Matrix4.Identity;
-    public Camera(GameObject gameObject, float AspectRatio) : base(gameObject) {
+    public Camera(float AspectRatio) {
       aspect = AspectRatio;
     }
 

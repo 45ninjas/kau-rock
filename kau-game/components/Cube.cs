@@ -1,6 +1,7 @@
 using System;
 
 using KauRock;
+using KauGame;
 using Loaders = KauRock.Loaders;
 
 using OpenTK.Graphics.OpenGL4;
@@ -9,9 +10,6 @@ using Mathf = System.MathF;
 
 namespace kauGame.Components {
   public class Cube : Component {
-    public Cube(GameObject go) : base(go) {
-
-    }
 
     private struct Vertex {
       public const int Size = sizeof(float) * 5;
