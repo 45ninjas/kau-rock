@@ -70,13 +70,13 @@ namespace kauGame.Components.Cameras {
 			var mouseInput = Mouse.GetState();
 
 			if(input.IsKeyDown(Key.Down))
-				Pitch += Sensitivity * Time.UnscaledDelta * 40;	// Look down.
+				Pitch += Sensitivity * Time.UnscaledDelta * 250;	// Look down.
 			if(input.IsKeyDown(Key.Up))
-				Pitch -= Sensitivity * Time.UnscaledDelta * 40;	// Look up.
+				Pitch -= Sensitivity * Time.UnscaledDelta * 250;	// Look up.
 			if(input.IsKeyDown(Key.Left))
-				Yaw -= Sensitivity * Time.UnscaledDelta * 40;		// Look left.
+				Yaw -= Sensitivity * Time.UnscaledDelta * 250;		// Look left.
 			if(input.IsKeyDown(Key.Right))
-				Yaw += Sensitivity * Time.UnscaledDelta * 40;		// Look right.
+				Yaw += Sensitivity * Time.UnscaledDelta * 250;		// Look right.
 
 			
 			// On the first frame set the lastMousePos to the current mouse position.

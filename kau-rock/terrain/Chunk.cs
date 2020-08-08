@@ -6,26 +6,39 @@ using System.Collections.Generic;
 namespace KauRock.Terrain {
 	public class Chunk : Component
 	{
+		// Chunk stuff.
 		public const int Size = 16;
-		public IVoxelProvider Provider;
-
 		public VoxPos Position;
+		public bool IsDirty = false;
 
+		internal bool[] Solid = new bool[Chunk.Size * Chunk.Size * Chunk.Size];
+
+		private readonly ChunkManager manager;
+
+		// Rendering stuff.
 		int triCount;
-
 		int elementBuffer, vertexBuffer, vertexArray;
 		public static ShaderProgram shader;
 
 		public static MeshMaker MeshMaker;
 
-		public Chunk(VoxPos Position, IVoxelProvider Provider, GameObject gameObject) : base(gameObject)
+		public Chunk(VoxPos position, IVoxelProvider provider, ChunkManager manager, GameObject gameObject) : base(gameObject)
 		{
+			Position = position;
+
 			// Move the transform to the chunk position.
 			var transform = GameObject.Transform;
 			transform.Position = (Vector3)Position * Size;
 
 			if(MeshMaker == null)
 				MeshMaker = new MeshMaker();
+
+			var values = provider.GetChunk(Position);
+			for (int i = 0; i < Solid.Length ; i++) {
+				Solid[i] = values[i] > 0.5f;
+			}
+
+			this.manager = manager;
 		}
 
 		private static  void LoadShader() {
@@ -34,6 +47,23 @@ namespace KauRock.Terrain {
 
 			using(var loader = new Loaders.Shader()) {
 				shader = loader.Load("resources/shaders/chunk.glsl");
+			}
+		}
+
+		public bool GetSolid(VoxPos position) {
+			return Solid[position.X + position.Y * Chunk.Size + position.Z * Chunk.Size * Chunk.Size];
+		}
+
+		public void SetSolid(VoxPos position, bool value, bool autoRebuild) {
+
+			if(!autoRebuild)
+				Solid[position.X + position.Y * Chunk.Size + position.Z * Chunk.Size * Chunk.Size] = value;
+			else {
+				bool oldVal = GetSolid(position);
+				Solid[position.X + position.Y * Chunk.Size + position.Z * Chunk.Size * Chunk.Size] = value;
+
+				if(oldVal != value)
+					IsDirty = true;
 			}
 		}
 
@@ -86,12 +116,17 @@ namespace KauRock.Terrain {
 		public override void OnStart() {
 			LoadShader();
 
-			MeshMaker.UpdateChunk(this);
-
 			Events.Render += Render;
+			Events.UpdateLast += UpdateLast;
+
+			manager.AddChunk(this);
+			MeshMaker.UpdateChunk(this);
 		}
 		public override void OnDestroy() {
+			manager.RemoveChunk(this);
+
 			Events.Render -= Render;
+			Events.UpdateLast -= UpdateLast;
 		}
 
 		void Render() {
@@ -99,6 +134,13 @@ namespace KauRock.Terrain {
 
 			GL.BindVertexArray(vertexArray);
 			GL.DrawElements(PrimitiveType.Triangles, triCount, DrawElementsType.UnsignedInt, 0);
+		}
+
+		void UpdateLast() {
+			if(IsDirty) {
+				IsDirty = false;
+				Log.Debug(this,"Chunk is dirty, update the mesh.");
+			}
 		}
 
 		public struct Vertex {

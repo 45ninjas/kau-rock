@@ -5,7 +5,16 @@ using KauRock;
 using OpenTK.Graphics.OpenGL4;
 
 namespace KauRock.Terrain {
+
 	public class MeshMaker {
+
+		public struct Triangle {
+			public int vertA;
+			public int vertB;
+			public int vertC;
+
+			// public Vector3 normal;
+		}
 
 		[System.Flags]
 		public enum Faces {
@@ -17,44 +26,111 @@ namespace KauRock.Terrain {
 			NegZ = 16,
 			PosZ = 32
 		}
-		int[] vertLookup;
 
-		Stack<uint> triangles;
-		Stack<Chunk.Vertex> vertices;
-		int verticesCount;
-		
+		Chunk activeChunk;
 
-		public MeshMaker() {
-			// Create our vertex lookup.
-			vertLookup = new int[Chunk.Size * Chunk.Size * Chunk.Size];
+		int vertexCount = 0;
+		Stack<VoxPos> vertices = new Stack<VoxPos>();
+		Stack<int> triangles = new Stack<int>();
 
+		const int VertexGridSize = Chunk.Size + 1;
+		const int VertexGridCube = VertexGridSize * VertexGridSize * VertexGridSize;
+
+		int vertexIndex(VoxPos position) {
+
+			// Check that the position is within the range of the vertex grid.
+			if(
+				position.X >= VertexGridSize || position.X < 0 ||
+				position.Y >= VertexGridSize || position.Y < 0 ||
+				position.Z >= VertexGridSize || position.Z < 0
+			) {
+				Log.Error(this, $"Vertex position is out of range {position}");
+			}
+			
+			return position.X + position.Y * VertexGridSize + position.Z * VertexGridSize * VertexGridSize;
 		}
 
 		public void UpdateChunk(Chunk chunk) {
-			// Start a new mesh.
-			startNew();
-
-			// Create a cube with the following faces.
-			Cube(new VoxPos(0,0,0), Faces.NegX |	Faces.PosX |	Faces.NegY |	Faces.PosY |	Faces.NegZ |	Faces.PosZ);
 			
+			for (int i = 0; i < VertexGridSize; i++) {
+			}
+
+			// Clear the vertices, triangles and vertex count.
+			vertices.Clear();
+			triangles.Clear();
+			vertexCount = 0;
+
+			activeChunk = chunk;
+			VoxPos position = new VoxPos();
+			for (position.X = 0; position.X < Chunk.Size; position.X++) {
+				for (position.Z = 0; position.Z < Chunk.Size; position.Z++) {
+					for (position.Y = 0; position.Y < Chunk.Size; position.Y++) {
+						March(position);
+					}
+				}
+			}
+
+			Vector3[] verts = new Vector3[vertices.Count];
+			uint[] tris = new uint[triangles.Count];
+
 			// Set the new mesh on the chunk.
-			chunk.SetMesh(vertices.ToArray(), triangles.ToArray());
+			// chunk.SetMesh(vertices.ToArray(), triangles.ToArray());
+		}
+		void March(VoxPos position) {
+
+		}
+		public void doCube(VoxPos pos, Chunk chunk) {
+
+			// Left face.
+			if(!isSolid(pos + VoxPos.Left)) {
+				// triangle(pos, 1, 5, 4);
+				// triangle(pos, 1, 4, 0);
+			}
+
+			// Right face.
+			if(!isSolid(pos + VoxPos.Right)) {
+				// triangle(pos, 3, 7, 6);
+				// triangle(pos, 3, 6, 2);
+			}
+
+			// Top face.
+			if(!isSolid(pos + VoxPos.Up)) {
+				// triangle(pos, 6, 7, 4);
+				// triangle(pos, 6, 4, 5);
+			}
+
+			// Bottom face.
+			if(!isSolid(pos + VoxPos.Down)) {
+				// triangle(pos, 3, 2, 1);
+				// triangle(pos, 3, 1, 0);
+			}
+
+			// Front face.
+			if(!isSolid(pos + VoxPos.Forward)) {
+				// triangle(pos, 4, 7, 3);
+				// triangle(pos, 4, 3, 0);
+			}
+
+			// Back face.
+			if(!isSolid(pos + VoxPos.Backwards)) {
+				// triangle(pos, 6, 5, 1);
+				// triangle(pos, 6, 1, 2);
+			}
 		}
 
-		void startNew() {
-			// Set all values in the vertex lookup to 0.
-			for(int i = vertLookup.Length - 1; i >= 0; i --)
-				vertLookup[i] = -1;
-				
-			// Create our list of vertices and triangles.
-			vertices = new Stack<Chunk.Vertex>();
-			triangles = new Stack<uint>();
+		bool isSolid(VoxPos position) {
 
-			verticesCount = 0;
+			// return false;
+
+			// If we are not on the surface of a chunk just quickly get the value.
+			if(position.X >= 0 && position.X < Chunk.Size &&
+			position.Y >= 0 && position.Y < Chunk.Size &&
+			position.Z >= 0 && position.Z < Chunk.Size) {
+				return activeChunk.GetSolid(position);
+			}
+
+			return true;
 		}
-
-		public delegate void MeshUpdate(Chunk.Vertex[] vertices, uint[] triangles);
-		public MeshUpdate OnUpdatedMesh;
 
 		VoxPos[] corner = new VoxPos[] {
 				// Bottom Face.
@@ -64,51 +140,52 @@ namespace KauRock.Terrain {
 				new VoxPos(1, 0, 1),
 				// Top Face.
 				new VoxPos(0, 1, 1),
-				new VoxPos(0, 1, 0),
+				new VoxPos(0, 1, 0), 
 				new VoxPos(1, 1, 0),
 				new VoxPos(1, 1, 1),
 			};
-		public void Cube(VoxPos pos, Faces visiableFaces) {
-			if(visiableFaces.HasFlag(Faces.NegX)) {
-				triangle(pos, 1, 5, 4);
-				triangle(pos, 1, 4, 0);
-			}
-			if(visiableFaces.HasFlag(Faces.PosX)) {
-				triangle(pos, 3, 7, 6);
-				triangle(pos, 3, 6, 2);
-			}
-			if(visiableFaces.HasFlag(Faces.NegY)){
-				triangle(pos, 3, 2, 1);
-				triangle(pos, 3, 1, 0);
-			}
-			if(visiableFaces.HasFlag(Faces.PosY)) {
-				triangle(pos, 6, 7, 4);
-				triangle(pos, 6, 4, 5);
-			}
-			if(visiableFaces.HasFlag(Faces.NegZ)) {
-				triangle(pos, 6, 5, 1);
-				triangle(pos, 6, 1, 2);
-			}
-			if(visiableFaces.HasFlag(Faces.PosZ)) {
-				triangle(pos, 4, 7, 3);
-				triangle(pos, 4, 3, 0);
-			}
-		}
-		private void triangle(VoxPos position, int a, int b, int c) {
-			triangles.Push((uint)getVertex(position + corner[a]));
-			triangles.Push((uint)getVertex(position + corner[b]));
-			triangles.Push((uint)getVertex(position + corner[c]));
-		}
-		private int getVertex(VoxPos position) {
-			int index = position.X + position.Y * Chunk.Size + position.Z * Chunk.Size * Chunk.Size;
+		
+		// public void Cube(VoxPos pos, Faces visiableFaces) {
+		// 	if(visiableFaces.HasFlag(Faces.NegX)) {
+		// 		triangle(pos, 1, 5, 4);
+		// 		triangle(pos, 1, 4, 0);
+		// 	}
+		// 	if(visiableFaces.HasFlag(Faces.PosX)) {
+		// 		triangle(pos, 3, 7, 6);
+		// 		triangle(pos, 3, 6, 2);
+		// 	}
+		// 	if(visiableFaces.HasFlag(Faces.NegY)){
+		// 		triangle(pos, 3, 2, 1);
+		// 		triangle(pos, 3, 1, 0);
+		// 	}
+		// 	if(visiableFaces.HasFlag(Faces.PosY)) {
+		// 		triangle(pos, 6, 7, 4);
+		// 		triangle(pos, 6, 4, 5);
+		// 	}
+		// 	if(visiableFaces.HasFlag(Faces.NegZ)) {
+		// 		triangle(pos, 6, 5, 1);
+		// 		triangle(pos, 6, 1, 2);
+		// 	}
+		// 	if(visiableFaces.HasFlag(Faces.PosZ)) {
+		// 		triangle(pos, 4, 7, 3);
+		// 		triangle(pos, 4, 3, 0);
+		// 	}
+		// }
+		// private void triangle(VoxPos position, int a, int b, int c) {
+		// 	triangles.Push((uint)getVertex(position + corner[a]));
+		// 	triangles.Push((uint)getVertex(position + corner[b]));
+		// 	triangles.Push((uint)getVertex(position + corner[c]));
+		// }
+		// private int getVertex(VoxPos position) {
+		// 	int index = position.X + position.Y * LookupSize + position.Z * LookupSize * LookupSize;
 
-			// If the vert does not exist, add it.
-			if(vertLookup[index] < 0) {
-				vertLookup[index] = verticesCount++;
-				vertices.Push(new Chunk.Vertex(position));
-			}
+		// 	// If the vert does not exist, add it.
+		// 	 if(vertLookup[index] < 0) {
+		// 		vertLookup[index] = verticesCount++;
+		// 		vertices.Push(new Chunk.Vertex(position));
+		// 	}
 
-			return vertLookup[index];
-		}
+		// 	return vertLookup[index];
+		// }
 	}
 }

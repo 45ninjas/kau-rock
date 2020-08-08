@@ -2,6 +2,7 @@ using kauGame.Components;
 using KauRock;
 using kauGame.Components.Cameras;
 using OpenTK;
+using KauRock.Terrain;
 
 namespace kauGame {
 	// https://coolors.co/002626-0e4749-ffba08-e3e7af-0f1a20
@@ -20,15 +21,28 @@ namespace kauGame {
 			new FreeCamMotion(camera) {
 				Pitch = -30
 			};
-			camera.Transform.Position = new Vector3(0, 3, 5);
 
-			GameObject testCube = new GameObject("A Test Cube");
-			new Cube(testCube);
-			testCube.Transform.Position = new Vector3(0, -2, 0);
+			// Place the camera just above top middle chunk.
+			camera.Transform.Position = new Vector3(2, 4.1f, 2) * Chunk.Size;
 
-			GameObject testChunk = new GameObject("Test Chunk");
-			new KauRock.Terrain.Chunk(new VoxPos(0,0,0), null, testChunk);
-			
+			var terrain = new HeightTerrain("Hello World".GetHashCode());
+
+			// Spawn a 8 x 8 x 4 block of chunks.
+
+			var chunkManager = new ChunkManager();
+
+			VoxPos chunkPos = new VoxPos();
+			for (chunkPos.X = 0; chunkPos.X < 4; chunkPos.X++) {
+				for (chunkPos.Z = 0; chunkPos.Z < 4; chunkPos.Z++) {
+					for (chunkPos.Y = 0; chunkPos.Y < 4; chunkPos.Y++) {
+
+						GameObject chunkGo = new GameObject("Chunk " + chunkPos);
+						var chunk = new Chunk(chunkPos, terrain, chunkManager, chunkGo);
+
+					}
+				}	
+			}
+
 			window.ClearColor = KauTheme.Darkest;
 			window.Run ();
 		}
