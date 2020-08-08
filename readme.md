@@ -18,5 +18,9 @@ Feel free to join our quiet little [Discord server](https://discord.gg/teUJ2FU).
 - Experience the freedoms and hardships of using my own custom engine.
 - Learn Shaders in more detail.
 
-## Prerequisites.
-Dotnet, OpenTK and a GPU capable of running OpenGL.
+## How To Compile
+Install dotnet and libgdiplus.
+ - Dotnet Core 3.1 sdk (`dotnet-sdk-3.1`)
+ - libgdiplus
+
+CD into the kau-game directory and run `dotnet run`.
