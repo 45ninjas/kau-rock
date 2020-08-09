@@ -8,7 +8,7 @@ using OpenTK.Graphics.OpenGL4;
 using OpenTK;
 using Mathf = System.MathF;
 
-namespace kauGame.Components {
+namespace KauGame.Components {
   public class Cube : Component {
 
     private struct Vertex {

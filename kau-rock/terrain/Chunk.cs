@@ -36,11 +36,10 @@ namespace KauRock.Terrain {
     }
 
     private static void LoadShader () {
-      if ( shader != null )
-        return;
-
-      using ( var loader = new Loaders.Shader() ) {
-        shader = loader.Load( "resources/shaders/chunk.glsl" );
+      if ( shader == null ) {
+        using ( var loader = new Loaders.Shader() ) {
+          shader = loader.Load( "resources/shaders/chunk.glsl" );
+        }
       }
     }
 
@@ -62,6 +61,7 @@ namespace KauRock.Terrain {
     }
 
     public void SetMesh (Chunk.Vertex[] vertices, uint[] triangles) {
+
       triCount = triangles.Length;
 
       Log.Debug( this, $"{vertices.Length} vertices, {triangles.Length / 3} triangles" );

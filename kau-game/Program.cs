@@ -12,7 +12,7 @@ namespace KauGame {
       KauWindow window = new KauWindow( 1240, 720, "Kau Game" );
 
       // Setup the camera object with a Camera and a FreeCam Component.
-      var camera = new GameObject( "Camera",
+      var camera = new GameObject(window.Root, "Camera", true,
         new Camera( ( float ) window.Width / window.Height ) {
           Sky = new SkyDome(),
           Gizmos = {
@@ -23,9 +23,12 @@ namespace KauGame {
           Pitch = -30
         }
       );
-      camera.Transform.Position = new Vector3( 2, 4.1f, 2 ) * Chunk.Size;
+      // camera.Transform.Position = new Vector3( 2, 4.1f, 2 ) * Chunk.Size;
+      camera.Transform.Position = new Vector3( 0, 0.5f, -0.5f ) * Chunk.Size;
 
-      VoxelScenes.TestScene( "Hello World".GetHashCode() );
+      new GameObject(window.Root, "Cube", true, new Cube());
+
+      VoxelScenes.TestScene( "Hello World".GetHashCode(), window.Root );
 
       window.ClearColor = KauTheme.Darkest;
       window.Run();

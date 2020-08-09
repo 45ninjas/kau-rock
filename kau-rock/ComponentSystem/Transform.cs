@@ -40,10 +40,9 @@ namespace KauRock {
       this.Rotation = Rotation;
     }
 
-    public override void OnStart() {
+    public override void OnEnabled() {
       UpdateMatrix();
-      base.OnStart();
-
+      
       Events.UpdateLast += MatrixDirtyUpdate;
       Events.RenderFirst += MatrixDirtyUpdate;
     }

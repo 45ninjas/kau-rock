@@ -16,6 +16,9 @@ namespace KauRock {
       // Set the console colours.
       Console.ResetColor();
       switch ( level ) {
+        case Level.Debug:
+          Console.ForegroundColor = ConsoleColor.Cyan;
+          break;
         case Level.Error:
           Console.ForegroundColor = ConsoleColor.Red;
           break;
@@ -35,6 +38,7 @@ namespace KauRock {
       }
 
       Console.WriteLine( message );
+      Console.ResetColor();
     }
 
     public static void Debug (object from, string format, params object[] args) {

@@ -12,12 +12,8 @@ namespace KauRock {
       }
     }
 
-    static Wireframe () {
-      CommandManager.Add( "wireframe", wireframeCommand );
-    }
-
-    [CommandInfo( "Toggles wireframe mode on or off" )]
-    private static string wireframeCommand (params string[] args) {
+    [Command("wire", "Toggles wireframe mode")]
+    private static string WireframeCommand (params string[] args) {
 
       bool status = Enabled;
 

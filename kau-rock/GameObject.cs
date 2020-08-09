@@ -7,7 +7,8 @@ namespace KauRock {
 
     public String Name;
 
-    public bool Active = true;
+    internal bool initialised = false;
+    public bool Enabled { get; private set; }
     public GameObject Parent { get; private set; }
 
     public readonly List<GameObject> Children = new List<GameObject>();
@@ -16,38 +17,35 @@ namespace KauRock {
 
     public readonly Transform Transform;
 
-    private bool hasStarted = false;
-
-    public GameObject (string name, params Component[] components) {
+    public GameObject (GameObject parent, string name, bool enabled, params Component[] components) {
       Transform = new Transform();
       AddComponent( Transform );
 
       Name = name;
-      SetParent( null );
-
-      AddComponents( components );
-    }
-
-    public GameObject (GameObject parent, string name, params Component[] components) {
-      Transform = new Transform();
-      AddComponent(Transform);
-
-      Name = name;
-      SetParent( parent );
-
-      AddComponents( components );
-    }
-
-    public void OnStart () {
-      hasStarted = true;
-      // Start the children first.
-      foreach ( var child in Children ) {
-        child.OnStart();
+      if ( parent == null ) {
+        Log.Warning( this, $"Setting parent of {name} to null." );
+        SetParent( parent );
       }
+      SetEnabled(enabled);
+      initialised = true;
 
-      // Then start the components.
-      foreach ( var component in Components ) {
-        component.OnStart();
+      AddComponents( components );
+    }
+
+    public void SetEnabled (bool value) {
+      if ( Enabled != value ) {
+        Enabled = value;
+
+        if ( value ) {
+          foreach ( var comp in Components ) {
+            comp.OnEnabled();
+          }
+        }
+        else {
+          foreach ( var comp in Components ) {
+            comp.OnDisabled();
+          }
+        }
       }
     }
 
@@ -69,23 +67,12 @@ namespace KauRock {
       Components.Clear();
     }
 
-    public void SetParent (GameObject newParent) {
-      // Remove ourselves from our existing parent.
+    public virtual void SetParent (GameObject newParent) {
       if ( Parent != null )
         Parent.Children.Remove( this );
-      // Or remove ourselves from the list of root objects only if we have a new parent.
-      else if ( newParent != null )
-        SceneManager.RootObjects.Remove( this );
 
-      // Set the parent to the new
       Parent = newParent;
-
-      // Add ourselves to the children list of our new parent.
-      if ( Parent != null )
-        Parent.Children.Add( newParent );
-      // Or add ourselves to the list of root objects.
-      else
-        SceneManager.RootObjects.Add( this );
+      Parent.Children.Add( this );
     }
 
     private void AddComponents (IEnumerable<Component> components) {
@@ -100,21 +87,19 @@ namespace KauRock {
         return;
       }
 
-      // Add the component.
+      // Add the component and enable it.
       Components.Add( component );
       component.GameObject = this;
 
-      // Call OnStart if the game object has already started.
-      if ( hasStarted ) {
-        Log.Info( this, "Gameobject has already started, Starting component" );
-        component.OnStart();
-      }
+      // Queue this component for OnStart.
+      Root.NewComponents.Enqueue( component );
     }
     public void RemoveComponent (Component component) {
       if ( !Components.Contains( component ) ) {
         Log.Warning( this, "Unable to remove component {0} as it doesn't exist.", component );
         return;
       }
+      component.OnDestroy();
       Components.Remove( component );
     }
   }

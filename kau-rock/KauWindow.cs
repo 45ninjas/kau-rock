@@ -8,8 +8,14 @@ namespace KauRock {
   public class KauWindow : GameWindow {
 
     public Color ClearColor;
+    public Root Root;
+    public Commands Commands;
     public KauWindow (int width, int height, string title) : base( width, height, GraphicsMode.Default, title ) {
-      CommandManager.SetStdIn(Console.In);
+
+      // Create the Commands component and the Root GameObject.
+      Root = new Root();
+      Commands = new Commands();
+      Root.AddComponent(Commands);
     }
 
     protected override void OnKeyDown (KeyboardKeyEventArgs e) {
@@ -25,7 +31,7 @@ namespace KauRock {
 
       // Readline.
       if ( e.Key == Key.F1 ) {
-        CommandManager.Execute( Console.ReadLine() );
+        Commands.Execute( Console.ReadLine() );
       }
 
       // Shift time scale.
@@ -53,8 +59,7 @@ namespace KauRock {
     }
 
     protected override void OnClosed (EventArgs e) {
-      SceneManager.DestroyAll();
-
+      Root.OnDestroy();
       base.OnClosed( e );
     }
 
@@ -76,7 +81,7 @@ namespace KauRock {
       GL.FrontFace( FrontFaceDirection.Cw );
       GL.CullFace( CullFaceMode.Back );
 
-      SceneManager.Start();
+      Root.SetEnabled(true);
     }
 
     private void GL_ErrorCallback (DebugSource source, DebugType type, int id, DebugSeverity severity, int lenght, IntPtr message, IntPtr userParam) {
