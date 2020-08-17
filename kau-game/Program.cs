@@ -11,6 +11,16 @@ namespace KauGame {
     static void Main (string[] args) {
       KauWindow window = new KauWindow( 1240, 720, "Kau Game" );
 
+      bool headless = false;
+      if(args.Length != 0) {
+        foreach (string arg in args) {
+          if(arg == "-term") {
+            headless = true;
+          }
+        }
+      }
+      window.Commands.Enabled = headless;
+
       // Setup the camera object with a Camera and a FreeCam Component.
       var camera = new GameObject(window.Root, "Camera", true,
         new Camera( ( float ) window.Width / window.Height ) {

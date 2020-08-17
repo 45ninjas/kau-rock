@@ -64,6 +64,7 @@ namespace KauRock {
     }
 
     protected override void OnLoad (EventArgs e) {
+      Log.Debug(this, "It's GO TIME baby!");
       base.OnLoad( e );
 
       // Enable Debugging open GL.

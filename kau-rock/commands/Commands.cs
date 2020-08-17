@@ -27,8 +27,10 @@ namespace KauRock {
       OnDestroy();
     }
     public override void OnDestroy() {
-      lineReader.ReceivedLine -= InputReceived;
-      lineReader.Shutdown();
+      if(lineReader != null) {
+        lineReader.ReceivedLine -= InputReceived;
+        lineReader.Shutdown();
+      }
     }
 
     public void AddAttributes () {

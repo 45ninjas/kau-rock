@@ -38,12 +38,14 @@ namespace KauRock {
 
         if ( value ) {
           foreach ( var comp in Components ) {
-            comp.OnEnabled();
+            if(comp.Enabled)
+              comp.OnEnabled();
           }
         }
         else {
           foreach ( var comp in Components ) {
-            comp.OnDisabled();
+            if(comp.Enabled)
+              comp.OnDisabled();
           }
         }
       }
@@ -92,7 +94,8 @@ namespace KauRock {
       component.GameObject = this;
 
       // Queue this component for OnStart.
-      Root.NewComponents.Enqueue( component );
+      if(component.Enabled)
+        Root.NewComponents.Enqueue( component );
     }
     public void RemoveComponent (Component component) {
       if ( !Components.Contains( component ) ) {

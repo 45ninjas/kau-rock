@@ -54,7 +54,6 @@ namespace KauRock {
         int location = GL.GetUniformLocation( Program, name );
 
         uniformLocations.Add( name, location );
-        Log.Debug( this, $"Shader Uniform {name} at {location}" );
       }
 
 

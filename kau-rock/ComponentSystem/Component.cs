@@ -3,13 +3,22 @@ namespace KauRock {
     public GameObject GameObject;
 
     private bool enabled = true;
-    public bool Enabled => enabled;
+    public bool Enabled {
+      get => enabled;
+      set {
+        if(value != enabled) {
+          if(value)
+            OnEnabled();
+          else
+            OnDisabled();
+        }
+        enabled = value;
+      }
+    }
 
     public virtual void OnDisabled() {
-      Log.Debug(this, "WTF IS GOING ON?");
     }
     public virtual void OnEnabled() {
-      Log.Debug(this, "HOW THE FUCK?");
     }
 
     public virtual void OnStart() {
